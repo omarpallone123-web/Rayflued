@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>REDZ HUB - Key System</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    background: radial-gradient(circle at top, #1a0505 0%, #0a0505 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 420px;
+    background: #12070a;
+    border: 1px solid #4a1010;
+    border-radius: 20px;
+    padding: 32px 24px;
+    box-shadow: 0 0 50px rgba(255, 0, 40, 0.35), 0 0 100px rgba(255, 0, 40, 0.1);
+    text-align: center;
+  }
+
+  .logo {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #ff1a1a;
+    text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 40px rgba(255,0,0,0.6);
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    color: #8c5555;
+    font-size: 13px;
+    margin-bottom: 28px;
+  }
+
+  .key-box {
+    background: #0a0303;
+    border: 1px dashed #5a1515;
+    border-radius: 12px;
+    padding: 18px 14px;
+    margin-bottom: 20px;
+    min-height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    word-break: break-all;
+  }
+
+  .key-text {
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: #ff3b3b;
+    text-shadow: 0 0 8px rgba(255, 30, 30, 0.8);
+    letter-spacing: 0.5px;
+  }
+
+  .key-placeholder {
+    color: #5a2a2a;
+    font-size: 14px;
+  }
+
+  button {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+
+  button:active {
+    transform: scale(0.97);
+    opacity: 0.85;
+  }
+
+  #generateBtn {
+    background: #ff0000;
+    color: #fff;
+    margin-bottom: 12px;
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.7), 0 0 30px rgba(255, 0, 0, 0.4);
+    text-shadow: 0 0 6px rgba(255,255,255,0.5);
+  }
+
+  #copyBtn {
+    background: #1a0a0a;
+    color: #ff6666;
+    border: 1px solid #5a1515;
+    display: none;
+  }
+
+  .toast {
+    margin-top: 14px;
+    font-size: 13px;
+    color: #ff4d4d;
+    text-shadow: 0 0 6px rgba(255,0,0,0.6);
+    height: 16px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .toast.show {
+    opacity: 1;
+  }
+
+  .footer {
+    margin-top: 22px;
+    font-size: 11px;
+    color: #5a2a2a;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">REDZ HUB</div>
+  <div class="subtitle">Key System</div>
+
+  <div class="key-box">
+    <span id="keyDisplay" class="key-placeholder">Nessuna chiave generata</span>
+  </div>
+
+  <button id="generateBtn" onclick="generateKey()">GENERATE KEY</button>
+  <button id="copyBtn" onclick="copyKey()">COPIA CHIAVE</button>
+
+  <div id="toast" class="toast">Chiave copiata!</div>
+
+  <div class="footer">redz_hub © 2026</div>
+</div>
+
+<script>
+  let currentKey = "";
+
+  function generateKey() {
+    let numbers = "";
+    for (let i = 0; i < 15; i++) {
+      numbers += Math.floor(Math.random() * 10);
+    }
+    currentKey = "redz_" + numbers;
+
+    const display = document.getElementById('keyDisplay');
+    display.textContent = currentKey;
+    display.classList.remove('key-placeholder');
+    display.classList.add('key-text');
+
+    document.getElementById('copyBtn').style.display = 'block';
+    document.getElementById('toast').classList.remove('show');
+  }
+
+  function copyKey() {
+    if (!currentKey) return;
+
+    const finish = () => {
+      const toast = document.getElementById('toast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1500);
+    };
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(currentKey).then(finish).catch(finish);
+    } else {
+      const tmp = document.createElement('textarea');
+      tmp.value = currentKey;
+      document.body.appendChild(tmp);
+      tmp.select();
+      document.execCommand('copy');
+      document.body.removeChild(tmp);
+      finish();
+    }
+  }
+</script>
+
+</body>
+</html>
