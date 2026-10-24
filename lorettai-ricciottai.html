@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lorettai Ricciottai</title>
+<style>
+:root{--bg:#120f1f;--card:rgba(255,255,255,.07);--card2:rgba(255,255,255,.12);--line:rgba(255,255,255,.14);--tx:#f4f1ff;--mut:#a9a2c7;--ac:#b794ff;--ac2:#ff8fb8;color-scheme:dark}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--tx);overflow:hidden;padding-top:env(safe-area-inset-top,0)}
+.bg{position:fixed;inset:0;z-index:-1;background:radial-gradient(600px 400px at 15% 10%,rgba(183,148,255,.35),transparent),radial-gradient(500px 400px at 90% 20%,rgba(255,143,184,.28),transparent),radial-gradient(600px 500px at 50% 100%,rgba(90,120,255,.25),transparent),var(--bg)}
+svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.screen{display:none;height:100%;overflow:auto;padding:20px;align-items:center;justify-content:center}
+.screen.on{display:flex}
+.card{width:100%;max-width:440px;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:26px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.2px;margin-bottom:18px}
+.logo .m{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,var(--ac),var(--ac2));color:#1b1030}
+h1{font-size:22px;margin-bottom:6px}
+p.s{color:var(--mut);font-size:14px;line-height:1.5;margin-bottom:18px}
+label{font-size:12px;color:var(--mut);display:block;margin:12px 0 6px}
+input,textarea{width:100%;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:14px;color:var(--tx);padding:13px 14px;font:inherit;font-size:15px;outline:none}
+input:focus,textarea:focus{border-color:var(--ac)}
+textarea{resize:none;min-height:110px}
+.btn{width:100%;margin-top:18px;border:0;border-radius:14px;padding:14px;font:inherit;font-weight:600;color:#1b1030;background:linear-gradient(135deg,var(--ac),var(--ac2));cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn:disabled{opacity:.5}
+.link{background:none;border:0;color:var(--ac);font:inherit;font-size:13px;cursor:pointer;margin-top:14px;display:block;width:100%;text-align:center}
+.err{color:#ff8a8a;font-size:13px;margin-top:10px;min-height:16px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 10px;color:var(--tx);font:inherit;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:10px}
+.opt svg.i{width:30px;height:30px;color:var(--ac)}
+.opt:hover,.opt.sel{border-color:var(--ac);background:var(--card2)}
+.prog{height:4px;background:var(--line);border-radius:4px;margin-bottom:20px;overflow:hidden}
+.prog b{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ac),var(--ac2));transition:width .3s}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--tx);border-radius:999px;padding:8px 14px;font:inherit;font-size:13px;cursor:pointer}
+.chip.sel{background:var(--ac);color:#1b1030;border-color:var(--ac)}
+.tabs{display:flex;background:rgba(0,0,0,.25);border-radius:14px;padding:4px;margin-bottom:6px}
+.tabs button{flex:1;border:0;background:none;color:var(--mut);padding:10px;border-radius:11px;font:inherit;font-weight:600;cursor:pointer}
+.tabs button.on{background:var(--card2);color:var(--tx)}
+/* chat */
+#chat{padding:0;align-items:stretch;justify-content:center}
+.wrap{width:100%;max-width:820px;display:flex;flex-direction:column;height:100%;padding:12px 12px calc(12px + env(safe-area-inset-bottom,0))}
+.top{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:10px 12px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.top .logo{margin:0;font-size:15px;flex:1;min-width:0}
+.top .logo span.t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .logo .m{width:32px;height:32px;border-radius:10px}
+.seg{display:flex;background:rgba(0,0,0,.28);border-radius:12px;padding:3px}
+.seg button{border:0;background:none;color:var(--mut);font:inherit;font-size:12px;font-weight:600;padding:7px 10px;border-radius:9px;cursor:pointer}
+.seg button.on{background:var(--ac);color:#1b1030}
+.ib{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--tx);display:grid;place-items:center;cursor:pointer;flex:none}
+.ib:hover{background:var(--card2)}
+#msgs{flex:1;overflow:auto;padding:16px 2px;display:flex;flex-direction:column;gap:12px}
+.msg{max-width:88%;padding:13px 16px;border-radius:20px;font-size:15px;line-height:1.55;border:1px solid var(--line);white-space:pre-wrap;word-wrap:break-word;animation:up .25s ease}
+.msg.u{align-self:flex-end;background:linear-gradient(135deg,rgba(183,148,255,.45),rgba(255,143,184,.35));border-bottom-right-radius:6px}
+.msg.a{align-self:flex-start;background:var(--card);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom-left-radius:6px}
+.msg.a .who{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ac);font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px}
+.msg.a .who svg.i{width:14px;height:14px}
+@keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.hello{margin:auto;text-align:center;max-width:420px;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:26px;backdrop-filter:blur(14px)}
+.hello .m{width:54px;height:54px;margin:0 auto 12px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(135deg,var(--ac),var(--ac2));color:#1b1030}
+.hello .m svg.i{width:28px;height:28px}
+.hello .chips{justify-content:center}
+.comp{display:flex;align-items:flex-end;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:8px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.comp textarea{min-height:0;height:44px;max-height:140px;border:0;background:none;padding:11px 8px}
+.comp .ib{border-radius:14px;width:44px;height:44px}
+.send{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#1b1030;border:0}
+.rec{background:#ff5c7a;color:#fff;border-color:#ff5c7a;animation:pulse 1.2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,92,122,.6)}100%{box-shadow:0 0 0 14px rgba(255,92,122,0)}}
+.dots span{display:inline-block;width:6px;height:6px;margin-right:4px;border-radius:50%;background:var(--ac);animation:b 1s infinite}
+.dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
+@keyframes b{50%{transform:translateY(-5px);opacity:.4}}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<svg width="0" height="0" style="position:absolute"><defs>
+<symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
+<symbol id="i-send" viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></symbol>
+<symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M16 7l3 3M14 9l2 2"/></symbol>
+<symbol id="i-woman" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M12 13v8M9 18h6"/></symbol>
+<symbol id="i-man" viewBox="0 0 24 24"><circle cx="10" cy="14" r="5"/><path d="m14 10 7-7M15 3h6v6"/></symbol>
+<symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 22l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></symbol>
+<symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+</defs></svg>
+
+<!-- KEY -->
+<section class="screen" id="s-key"><div class="card">
+<div class="logo"><div class="m"><svg class="i"><use href="#i-heart"/></svg></div>Lorettai Ricciottai</div>
+<h1>Benvenuta, benvenuto</h1>
+<p class="s">Per iniziare inserisci la tua chiave API di Groq (inizia con gsk_). Resta salvata solo su questo dispositivo.</p>
+<label>Chiave GSK</label>
+<input id="key" type="password" placeholder="gsk_..." autocomplete="off">
+<div class="err" id="e-key"></div>
+<button class="btn" id="b-key"><svg class="i"><use href="#i-key"/></svg>Continua</button>
+<button class="link" id="l-have">Ho già un account</button>
+</div></section>
+
+<!-- GENDER -->
+<section class="screen" id="s-gender"><div class="card">
+<div class="prog"><b style="width:10%"></b></div>
+<h1>Come ti identifichi?</h1>
+<p class="s">Lorettai si rivolgerà a te nel modo giusto.</p>
+<div class="opts">
+<button class="opt" data-g="donna"><svg class="i"><use href="#i-woman"/></svg>Donna</button>
+<button class="opt" data-g="uomo"><svg class="i"><use href="#i-man"/></svg>Uomo</button>
+</div>
+</div></section>
+
+<!-- QUESTIONS -->
+<section class="screen" id="s-q"><div class="card">
+<div class="prog"><b id="pg"></b></div>
+<h1 id="q-t"></h1>
+<p class="s" id="q-s"></p>
+<div id="q-in"></div>
+<div class="chips" id="q-chips"></div>
+<div class="err" id="e-q"></div>
+<button class="btn" id="b-q">Avanti</button>
+<button class="link" id="b-back">Indietro</button>
+</div></section>
+
+<!-- AUTH -->
+<section class="screen" id="s-auth"><div class="card">
+<div class="logo"><div class="m"><svg class="i"><use href="#i-lock"/></svg></div>Il tuo spazio</div>
+<div class="tabs"><button id="t-up" class="on">Registrati</button><button id="t-in">Accedi</button></div>
+<label>Email</label><input id="em" type="email" autocomplete="email">
+<label>Password</label><input id="pw" type="password" autocomplete="current-password">
+<div class="err" id="e-a"></div>
+<button class="btn" id="b-a">Crea account</button>
+</div></section>
+
+<!-- CHAT -->
+<section class="screen" id="chat"><div class="wrap">
+<div class="top">
+<div class="logo"><div class="m"><svg class="i"><use href="#i-heart"/></svg></div><span class="t">Lorettai Ricciottai</span></div>
+<div class="seg"><button data-m="openai/gpt-oss-120b" class="on">120B</button><button data-m="openai/gpt-oss-20b">20B</button></div>
+<button class="ib" id="new" title="Nuova chat"><svg class="i"><use href="#i-plus"/></svg></button>
+<button class="ib" id="out" title="Esci"><svg class="i"><use href="#i-out"/></svg></button>
+</div>
+<div id="msgs"></div>
+<div class="comp">
+<button class="ib" id="mic" title="Dettatura vocale"><svg class="i"><use href="#i-mic"/></svg></button>
+<textarea id="inp" rows="1" placeholder="Scrivi a Lorettai..."></textarea>
+<button class="ib send" id="send" title="Invia"><svg class="i"><use href="#i-send"/></svg></button>
+</div>
+</div></section>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const LS=(k,v)=>{try{if(v===undefined)return JSON.parse(localStorage.getItem(k));localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}};
+const P={gender:"",name:"",feel:"",problems:"",goal:"",tone:""};
+let KEY=LS("lr_key")||"",MODEL="openai/gpt-oss-120b",user=null,hist=[],busy=false,qi=0,mode="up";
+const esc=s=>s.replace(/[&<>]/g,c=({"&":"&amp;","<":"&lt;",">":"&gt;"})[c]);
+function show(id){$$(".screen").forEach(s=>s.classList.toggle("on",s.id===id))}
+async function hash(t){try{const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode("lr:"+t));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}catch(e){return btoa(t)}}
+
+/* key */
+$("#b-key").onclick=()=>{const v=$("#key").value.trim();if(!v.startsWith("gsk_")||v.length<20){$("#e-key").textContent="La chiave deve iniziare con gsk_";return}KEY=v;LS("lr_key",v);show("s-gender")};
+$("#l-have").onclick=()=>{const v=$("#key").value.trim();if(!v.startsWith("gsk_")){$("#e-key").textContent="Inserisci prima la chiave gsk_";return}KEY=v;LS("lr_key",v);setMode("in");show("s-auth")};
+
+/* gender */
+$$(".opt").forEach(b=>b.onclick=()=>{P.gender=b.dataset.g;qi=0;renderQ();show("s-q")});
+
+/* questions */
+const Q=[
+{k:"name",t:"Come ti chiami?",s:"Il nome con cui vuoi essere chiamata o chiamato.",type:"input"},
+{k:"feel",t:"Come ti senti in questo periodo?",s:"Scrivi liberamente, anche poche righe.",type:"area"},
+{k:"problems",t:"Quali sono i tuoi problemi principali?",s:"Cosa ti pesa di più adesso: lavoro, relazioni, ansia, famiglia, altro.",type:"area"},
+{k:"goal",t:"Cosa vorresti ottenere?",s:"Un obiettivo, un cambiamento o semplicemente qualcuno con cui parlare.",type:"area"},
+{k:"tone",t:"Come vuoi che ti parli?",s:"Scegli uno o più stili.",type:"chips",opts:["Dolce e rassicurante","Diretta e concreta","Motivante","Ironica e leggera","Calma e riflessiva"]}
+];
+function renderQ(){
+const q=Q[qi];$("#pg").style.width=(20+qi/Q.length*80)+"%";$("#q-t").textContent=q.t;$("#q-s").textContent=q.s;$("#e-q").textContent="";
+const box=$("#q-in"),ch=$("#q-chips");box.innerHTML="";ch.innerHTML="";
+if(q.type==="input"){box.innerHTML='<input id="qv" autocomplete="off">'}
+if(q.type==="area"){box.innerHTML='<textarea id="qv"></textarea>'}
+if(q.type==="chips"){const sel=new Set((P.tone||"").split("|").filter(Boolean));q.opts.forEach(o=>{const c=document.createElement("button");c.className="chip"+(sel.has(o)?" sel":"");c.textContent=o;c.onclick=()=>{c.classList.toggle("sel");P.tone=$$("#q-chips .sel").map(x=>x.textContent).join("|")};ch.appendChild(c)})}
+else{$("#qv").value=P[q.k]||"";$("#qv").focus()}
+$("#b-q").textContent=qi===Q.length-1?"Fine":"Avanti";
+}
+$("#b-q").onclick=()=>{const q=Q[qi];
+if(q.type!=="chips"){const v=$("#qv").value.trim();if(!v){$("#e-q").textContent="Scrivi qualcosa per continuare";return}P[q.k]=v}
+else if(!P.tone){$("#e-q").textContent="Scegli almeno uno stile";return}
+if(qi<Q.length-1){qi++;renderQ()}else{setMode("up");show("s-auth")}};
+$("#b-back").onclick=()=>{if(qi>0){qi--;renderQ()}else show("s-gender")};
+
+/* system prompt */
+function buildPrompt(p){
+const g=p.gender==="donna"?"una donna":"un uomo";
+return `Sei Lorettai Ricciottai, una compagna AI empatica, calda e attenta, che offre ascolto e supporto emotivo. Parli sempre in italiano.
+
+PROFILO DELLA PERSONA
+- Nome: ${p.name}
+- Genere: ${g}. Rivolgiti a lei/lui con la concordanza grammaticale corretta.
+- Come si sente in questo periodo: ${p.feel}
+- Problemi principali: ${p.problems}
+- Cosa vorrebbe ottenere: ${p.goal}
+- Stile di comunicazione preferito: ${p.tone.split("|").join(", ")}
+
+COME COMPORTARTI
+- Usa il nome ${p.name} con naturalezza, senza abusarne.
+- Ascolta prima di consigliare: riconosci le emozioni, poi proponi passi piccoli e concreti.
+- Fai una sola domanda per volta e mantieni le risposte brevi e chiare.
+- Adotta lo stile richiesto, ricollegandoti a ciò che la persona ha raccontato di sé.
+- Non giudicare, non fare diagnosi e non sostituirti a un professionista della salute.
+- Se emergono segnali di rischio per sé o per altri, esprimi vicinanza e invita a contattare subito il 112 o il Telefono Amico (02 2327 2327).
+- Non usare emoji.`}
+
+/* auth */
+function setMode(m){mode=m;$("#t-up").classList.toggle("on",m==="up");$("#t-in").classList.toggle("on",m==="in");$("#b-a").textContent=m==="up"?"Crea account":"Accedi";$("#e-a").textContent=""}
+$("#t-up").onclick=()=>setMode("up");$("#t-in").onclick=()=>setMode("in");
+$("#b-a").onclick=async()=>{
+const em=$("#em").value.trim().toLowerCase(),pw=$("#pw").value,E=$("#e-a");
+if(!/^\S+@\S+\.\S+$/.test(em)){E.textContent="Email non valida";return}
+if(pw.length<6){E.textContent="Password di almeno 6 caratteri";return}
+const U=LS("lr_users")||{},h=await hash(pw);
+if(mode==="up"){
+ if(!P.name){E.textContent="Completa prima le domande iniziali";setMode("in");return}
+ if(U[em]){E.textContent="Email già registrata, accedi";return}
+ U[em]={h,profile:{...P},sys:buildPrompt(P),chat:[]};LS("lr_users",U);
+}else{
+ if(!U[em]||U[em].h!==h){E.textContent="Email o password errati";return}
+}
+user=em;LS("lr_session",em);openChat();
+};
+
+/* chat */
+function openChat(){const U=LS("lr_users")||{};hist=U[user].chat||[];draw();show("chat")}
+function save(){const U=LS("lr_users")||{};if(U[user]){U[user].chat=hist.slice(-60);LS("lr_users",U)}}
+function md(s){return esc(s).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>")}
+function bubble(role,text){const d=document.createElement("div");d.className="msg "+(role==="user"?"u":"a");
+d.innerHTML=role==="user"?esc(text):'<div class="who"><svg class="i"><use href="#i-heart"/></svg>Lorettai</div><div class="bd">'+md(text)+'</div>';$("#msgs").appendChild(d);$("#msgs").scrollTop=1e9;return d}
+function draw(){const m=$("#msgs");m.innerHTML="";
+if(!hist.length){const U=LS("lr_users")||{},n=U[user].profile.name;
+m.innerHTML=`<div class="hello"><div class="m"><svg class="i"><use href="#i-heart"/></svg></div><h1>Ciao ${esc(n)}</h1><p class="s">Sono qui per ascoltarti. Da dove vuoi cominciare?</p><div class="chips"><button class="chip">Ho bisogno di sfogarmi</button><button class="chip">Aiutami a organizzare i pensieri</button><button class="chip">Come sto andando?</button></div></div>`;
+$$(".hello .chip").forEach(c=>c.onclick=()=>{$("#inp").value=c.textContent;sendMsg()});return}
+hist.forEach(h=>bubble(h.role,h.content))}
+async function sendMsg(){
+const t=$("#inp").value.trim();if(!t||busy)return;
+if(!hist.length)$("#msgs").innerHTML="";
+busy=true;$("#inp").value="";$("#inp").style.height="44px";
+hist.push({role:"user",content:t});bubble("user",t);
+const b=bubble("assistant","");const bd=b.querySelector(".bd");bd.innerHTML='<span class="dots"><span></span><span></span><span></span></span>';
+const U=LS("lr_users")||{};let out="";
+try{
+const r=await fetch("https://api.groq.com/openai/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+KEY},
+body:JSON.stringify({model:MODEL,stream:true,temperature:.8,reasoning_effort:"low",messages:[{role:"system",content:U[user].sys},...hist.slice(-30)]})});
+if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||"Errore "+r.status)}
+const rd=r.body.getReader(),dc=new TextDecoder();let buf="";
+for(;;){const{done,value}=await rd.read();if(done)break;buf+=dc.decode(value,{stream:true});const ls=buf.split("\n");buf=ls.pop();
+for(const l of ls){if(!l.startsWith("data: ")||l.includes("[DONE]"))continue;try{const d=JSON.parse(l.slice(6)).choices[0].delta.content;if(d){out+=d;bd.innerHTML=md(out);$("#msgs").scrollTop=1e9}}catch(e){}}}
+if(!out)out="Non ho ricevuto risposta, riprova.";bd.innerHTML=md(out);hist.push({role:"assistant",content:out});
+}catch(e){bd.innerHTML=md("Errore: "+e.message);hist.pop()}
+busy=false;save();
+}
+$("#send").onclick=sendMsg;
+$("#inp").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey&&innerWidth>700){e.preventDefault();sendMsg()}});
+$("#inp").addEventListener("input",e=>{e.target.style.height="44px";e.target.style.height=Math.min(e.target.scrollHeight,140)+"px"});
+$$(".seg button").forEach(b=>b.onclick=()=>{MODEL=b.dataset.m;$$(".seg button").forEach(x=>x.classList.toggle("on",x===b))});
+$("#new").onclick=()=>{hist=[];save();draw()};
+$("#out").onclick=()=>{LS("lr_session",null);user=null;hist=[];$("#pw").value="";setMode("in");show("s-auth")};
+
+/* microfono */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null;
+$("#mic").onclick=()=>{
+if(!SR){alert("Il riconoscimento vocale non è supportato da questo browser. Prova con Chrome o Safari.");return}
+const m=$("#mic");
+if(rec){rec.stop();return}
+rec=new SR();rec.lang="it-IT";rec.interimResults=true;rec.continuous=true;
+const base=$("#inp").value?$("#inp").value+" ":"";
+rec.onresult=e=>{let t="";for(const r of e.results)t+=r[0].transcript;$("#inp").value=base+t;$("#inp").dispatchEvent(new Event("input"))};
+rec.onend=()=>{rec=null;m.classList.remove("rec");m.innerHTML='<svg class="i"><use href="#i-mic"/></svg>'};
+rec.onerror=()=>{};
+m.classList.add("rec");m.innerHTML='<svg class="i"><use href="#i-stop"/></svg>';rec.start();
+};
+
+/* avvio */
+(()=>{const s=LS("lr_session"),U=LS("lr_users")||{};
+if(s&&U[s]&&KEY){user=s;openChat()}else if(!KEY)show("s-key");else if(s&&U[s]){user=s;openChat()}else show("s-gender");
+if(KEY&&!s)$("#key").value=KEY;
+})();
+</script>
+</body>
+</html>
