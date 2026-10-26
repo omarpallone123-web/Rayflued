@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Private Vault</title>
+<style>
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0f1115;color:#e8e8e8;font-family:system-ui,sans-serif;padding:16px;box-sizing:border-box}
+.card{width:min(94vw,600px);background:#181b22;padding:24px;border-radius:14px}
+h1{margin:0 0 12px;font-size:20px}h2{margin:18px 0 6px;font-size:15px;color:#9aa4b8}
+input,textarea,button{width:100%;box-sizing:border-box;padding:12px;margin-top:10px;border-radius:8px;border:1px solid #333;background:#0f1115;color:#fff;font-size:15px}
+textarea{height:240px;font-family:monospace;font-size:13px}
+button{background:#4f7cff;border:0;font-weight:600;cursor:pointer}
+button.sec{background:#262b36}button.del{background:#c0392b;width:auto;margin:0 0 0 8px;padding:8px 12px}
+.row{display:flex;align-items:center;margin-top:8px}.row button{margin:0;flex:1;text-align:left}
+#msg{margin-top:10px;color:#ff6b6b;font-weight:600}#ok{color:#6bff9a;margin-top:8px}
+code{display:block;margin-top:10px;padding:10px;background:#0f1115;border-radius:8px;font-size:12px;word-break:break-all}
+</style></head><body><div class="card">
+<h1>🔒 Private Vault</h1>
+
+<div id="lock"><input id="pw" type="password" placeholder="Enter password" autocomplete="off">
+<button id="go">Unlock</button></div>
+<div id="msg"></div>
+
+<div id="main" hidden>
+  <h2>Files</h2>
+  <div id="files"></div>
+
+  <div id="viewer" hidden>
+    <h2 id="vname"></h2>
+    <textarea id="code" readonly></textarea>
+    <button id="copy">Copy code</button>
+    <code id="ls"></code>
+  </div>
+
+  <div id="admin" hidden>
+    <h2>Upload a file (admin)</h2>
+    <input id="fileinput" type="file">
+    <input id="fname" type="text" placeholder="File name (e.g. myscript.lua)">
+    <button id="up" class="sec">Upload</button>
+    <div id="ok"></div>
+  </div>
+</div>
+</div>
+<script>
+// >>> Replace with your function URL (Supabase -> Edge Functions -> vault)
+const FUNCTION_URL = "https://YOUR-PROJECT-REF.supabase.co/functions/v1/vault";
+
+const $ = id => document.getElementById(id);
+let PW = "", ROLE = "";
+
+function api(body) {
+  return fetch(FUNCTION_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: PW, ...body }) });
+}
+
+async function refresh() {
+  const r = await api({ action: "list" });
+  if (!r.ok) { $("msg").textContent = await r.text(); return false; }
+  const j = await r.json();
+  ROLE = j.role;
+  const box = $("files"); box.innerHTML = "";
+  if (!j.files.length) box.textContent = "No files yet.";
+  j.files.forEach(name => {
+    const row = document.createElement("div"); row.className = "row";
+    const b = document.createElement("button"); b.className = "sec"; b.textContent = "📄 " + name;
+    b.onclick = () => openFile(name);
+    row.appendChild(b);
+    if (ROLE === "admin") {
+      const d = document.createElement("button"); d.className = "del"; d.textContent = "Delete";
+      d.onclick = async () => { if (confirm("Delete " + name + "?")) { await api({ action: "delete", file: name }); refresh(); $("viewer").hidden = true; } };
+      row.appendChild(d);
+    }
+    box.appendChild(row);
+  });
+  $("admin").hidden = ROLE !== "admin";
+  return true;
+}
+
+async function unlock() {
+  $("msg").textContent = "";
+  PW = $("pw").value; $("pw").value = "";
+  try {
+    if (await refresh()) { $("lock").hidden = true; $("main").hidden = false; }
+    else PW = "";
+  } catch (e) { $("msg").textContent = "Connection error."; PW = ""; }
+}
+
+async function openFile(name) {
+  const r = await api({ action: "get", file: name });
+  const t = await r.text();
+  if (!r.ok) { $("msg").textContent = t; return; }
+  $("viewer").hidden = false;
+  $("vname").textContent = name;
+  $("code").value = t;
+  $("copy").textContent = "Copy code";
+  $("ls").textContent = 'loadstring(game:HttpGet("' + FUNCTION_URL + '?key=YOUR_PASSWORD&file=' + encodeURIComponent(name) + '"))()';
+}
+
+$("fileinput").onchange = () => {
+  const f = $("fileinput").files[0];
+  if (f && !$("fname").value) $("fname").value = f.name.replace(/[^A-Za-z0-9._-]/g, "_");
+};
+
+$("up").onclick = async () => {
+  const f = $("fileinput").files[0], name = $("fname").value.trim();
+  $("ok").style.color = "#6bff9a";
+  if (!f || !name) { $("ok").style.color = "#ff6b6b"; $("ok").textContent = "Choose a file and a name."; return; }
+  $("ok").textContent = "Uploading...";
+  const fd = new FormData();
+  fd.append("password", PW); fd.append("name", name); fd.append("file", f);
+  const r = await fetch(FUNCTION_URL, { method: "POST", body: fd });
+  if (!r.ok) { $("ok").style.color = "#ff6b6b"; $("ok").textContent = await r.text(); return; }
+  $("ok").textContent = "Uploaded: " + name;
+  $("fileinput").value = ""; $("fname").value = "";
+  refresh();
+};
+
+$("go").onclick = unlock;
+$("pw").addEventListener("keydown", e => { if (e.key === "Enter") unlock(); });
+$("copy").onclick = () => { navigator.clipboard.writeText($("code").value); $("copy").textContent = "Copied!"; };
+</script></body></html>
