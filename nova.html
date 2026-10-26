@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="it"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Nova</title>
+<style>
+:root{--bg:#faf9f5;--tx:#1f1e1d;--mu:#73726c;--sf:#fff;--ub:#f0eee6;--bd:#e5e2d8;--ac:#c96442;--acx:#fff;color-scheme:light}
+@media(prefers-color-scheme:dark){:root{--bg:#262624;--tx:#f5f4ee;--mu:#a3a29a;--sf:#30302e;--ub:#3a3936;--bd:#454440;--ac:#d97757;--acx:#1f1e1d;color-scheme:dark}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--tx);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column;height:100dvh;padding-top:env(safe-area-inset-top,0)}
+.serif{font-family:"Iowan Old Style",Georgia,"Times New Roman",serif}
+header{display:flex;align-items:center;padding:8px 10px;min-height:52px}
+header b{font-size:1.15rem;margin-left:6px;font-weight:500}
+.ib{width:40px;height:40px;border:0;background:none;color:var(--mu);border-radius:12px;display:grid;place-items:center;cursor:pointer;flex:none}
+.ib:hover,.ib.on{background:var(--ub);color:var(--tx)}
+.ib svg{width:22px;height:22px}
+header .ib:last-child{margin-left:auto}
+#log{flex:1;overflow-y:auto;padding:8px 16px 16px;width:100%;max-width:760px;margin:0 auto}
+#hero{display:none;text-align:center;padding:12vh 8px 0}
+body:not(.chat) #hero{display:block}
+#hero .sp{width:44px;height:44px;color:var(--ac);display:inline-block}
+#hero h1{font-weight:400;font-size:clamp(1.8rem,7vw,2.5rem);line-height:1.2;margin:12px 0 22px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.pills button,.fu button{font:inherit;font-size:.9rem;color:var(--tx);background:var(--sf);border:1px solid var(--bd);border-radius:999px;padding:8px 14px;cursor:pointer}
+.u{background:var(--ub);border-radius:18px;padding:9px 15px;max-width:85%;margin:18px 0 18px auto;width:fit-content;overflow-wrap:anywhere;white-space:pre-wrap}
+.a{display:flex;gap:12px;margin:18px 0}
+.a>.sp{width:22px;height:22px;color:var(--ac);flex:none;margin-top:4px}
+.c{min-width:0;overflow-wrap:anywhere;flex:1}
+.c a{color:var(--ac)}
+.wait .sp{animation:spin 2.4s linear infinite}
+.wait .c{color:var(--mu)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.src{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.src a{font-size:.8rem;text-decoration:none;color:var(--mu);border:1px solid var(--bd);border-radius:999px;padding:3px 10px}
+details{margin-top:10px;font-size:.85rem;color:var(--mu)}
+summary{cursor:pointer;padding:2px 0}
+details ol{margin:6px 0 0;padding-left:20px}
+.fu{margin-top:10px}
+.dock{padding:6px 12px calc(10px + env(safe-area-inset-bottom,0px));width:100%;max-width:760px;margin:0 auto}
+.cmp{background:var(--sf);border:1px solid var(--bd);border-radius:24px;padding:8px 8px 6px 14px;box-shadow:0 2px 14px rgba(0,0,0,.07)}
+.cmp:focus-within{border-color:var(--mu)}
+textarea{display:block;width:100%;border:0;outline:0;background:none;resize:none;font:inherit;font-size:16px;color:var(--tx);max-height:150px;padding:6px 0;margin:0}
+.row{display:flex;align-items:center;gap:2px}
+.row .gap{flex:1}
+#send{width:38px;height:38px;border:0;border-radius:50%;background:var(--ac);color:var(--acx);display:grid;place-items:center;cursor:pointer;flex:none;margin-left:4px}
+#send:disabled{opacity:.35}
+#send svg{width:20px;height:20px}
+.note{text-align:center;font-size:.72rem;color:var(--mu);margin:6px 0 0}
+button:focus-visible,textarea:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.wait .sp{animation:none}}
+</style></head><body>
+<header><b class="serif">Nova</b><button class="ib" id="spk" type="button" aria-label="Voce attiva" title="Voce"></button><button class="ib" id="clr" type="button" aria-label="Nuova chat" title="Nuova chat"></button></header>
+<div id="log"><div id="hero"><span class="sp" data-i="sp"></span><h1 class="serif" id="hi">Ciao, come posso aiutarti?</h1><div class="pills" id="pl"></div></div></div>
+<div class="dock"><div class="cmp"><textarea id="q" rows="1" enterkeyhint="send" placeholder="Chiedi qualsiasi cosa a Nova" aria-label="Messaggio"></textarea>
+<div class="row"><span class="gap"></span><button class="ib" id="mic" type="button" aria-label="Parla"></button><button id="send" type="button" aria-label="Invia" disabled></button></div></div>
+<p class="note">Nova usa un motore proprio e cerca su Wikipedia e sul web. Controlla le informazioni importanti.</p></div>
+<script>
+const $=s=>document.querySelector(s),log=$("#log"),qi=$("#q"),send=$("#send");
+const IC={sp:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 2v20M2 12h20M5 5l14 14M19 5L5 19"/></svg>',
+up:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>',
+mic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',
+on:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9zM16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>',
+off:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9zM17 9l5 6M22 9l-5 6"/></svg>',
+nw:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>'};
+document.querySelectorAll("[data-i]").forEach(e=>e.innerHTML=IC[e.dataset.i]);
+send.innerHTML=IC.up;$("#mic").innerHTML=IC.mic;$("#clr").innerHTML=IC.nw;
+const S={topic:null,cur:null,kb:{},voice:true,lang:"it"};
+try{S.kb=JSON.parse(localStorage.getItem("nova_kb")||"{}");S.voice=localStorage.getItem("nova_v")!="0"}catch(e){}
+const save=()=>{try{localStorage.setItem("nova_kb",JSON.stringify(S.kb))}catch(e){}};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt=s=>esc(s).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\n/g,"<br>");
+const J=async u=>{const r=await fetch(u);if(!r.ok)throw 0;return r.json()};
+
+/* ---------- linguaggio ---------- */
+const SW=new Set("il lo la i gli le un uno una di a da in con su per tra fra e ed o che chi cosa come quando dove perché perche quale quali quanto quanti quanta quante è era sono ha ho mi ti si ci del della dei delle dello al alla ai alle nel nella nei nelle sul sulla non più piu me te dimmi parlami spiegami dammi puoi sai fa the an of on at to for and or is are was were what who when where why how which do does did tell about".split(" "));
+const kw=s=>s.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(w=>w.length>1&&!SW.has(w));
+const st=w=>w.length>5?w.slice(0,-2):w;
+const lang=q=>{const w=q.toLowerCase().split(/\W+/);const en=w.filter(x=>/^(the|what|who|is|are|how|why|when|where|does|tell|about|of|and|my|name)$/.test(x)).length;const it=w.filter(x=>/^(il|lo|la|che|chi|come|cosa|quando|dove|perch[eé]|è|di|del|della|un|una|sono|per|mi)$/.test(x)).length;return en>it?"en":"it"};
+const cleanTopic=q=>q.replace(/[?!]+$/,"").replace(/^(chi\s+(è|era|sono|erano)|che\s+cos['’]?\s?è|cos['’]?\s?è|cosa\s+(è|sono)|parlami\s+di|dimmi\s+(di|su|qualcosa\s+su)|spiegami|raccontami(\s+di)?|informazioni\s+su|notizie\s+su|ultime\s+notizie\s+(su|di)|cerca|who\s+(is|was)|what\s+(is|are|was)|tell\s+me\s+about|news\s+(on|about)|search)\s+/i,"").replace(/^(il|lo|la|l['’]|un|una|the)\s*/i,"").trim();
+const qtype=(q,n)=>/^(quando|when)\b|in che anno/i.test(q)?"when":/quant[ie]?\b|how (many|much)/i.test(q)?"num":/^(chi\s+(è|era)|che\s+cos|cos['’]?\s?è|cosa\s+è|who\s+(is|was)|what\s+(is|are)|parlami|spiegami|raccontami|tell me|dimmi)/i.test(q)||n<=3?"def":"fact";
+
+/* ---------- strumenti ---------- */
+function calc(src){
+  let s=src.toLowerCase().replace(/quanto\s+(fa|è)|calcola|risultato\s+di|=|\?/g,"").replace(/(\d),(\d)/g,"$1.$2").replace(/×|\bx\b/g,"*").replace(/÷/g,"/")
+   .replace(/\bper\b/g,"*").replace(/\bdiviso\b/g,"/").replace(/\b(più|piu|plus)\b/g,"+").replace(/\b(meno|minus)\b/g,"-")
+   .replace(/radice(\s+quadrata)?\s+di/g,"sqrt ").replace(/(\d+(?:\.\d+)?)\s*%\s*di\s*(\d+(?:\.\d+)?)/g,"($1/100*$2)");
+  if(!/\d/.test(s)||!/[-+*/^%]|sqrt|sin|cos|tan|log|ln|abs|exp/.test(s))return null;
+  const t=s.match(/\d+\.?\d*|[a-z]+|\*\*|[-+*/^()%]/g)||[];let i=0;
+  const F={sqrt:Math.sqrt,sin:Math.sin,cos:Math.cos,tan:Math.tan,log:Math.log10,ln:Math.log,abs:Math.abs,exp:Math.exp},K={pi:Math.PI,e:Math.E};
+  const ex=()=>{let v=tm();while(t[i]=="+"||t[i]=="-"){const o=t[i++],r=tm();v=o=="+"?v+r:v-r}return v};
+  const tm=()=>{let v=pw();while(t[i]=="*"||t[i]=="/"||t[i]=="%"){const o=t[i++],r=pw();v=o=="*"?v*r:o=="/"?v/r:v%r}return v};
+  const pw=()=>{const b=un();if(t[i]=="^"||t[i]=="**"){i++;return b**pw()}return b};
+  const un=()=>{if(t[i]=="-"){i++;return -un()}if(t[i]=="+"){i++;return un()}return at()};
+  const at=()=>{const x=t[i++];if(x==null)throw 0;if(x=="("){const v=ex();if(t[i++]!=")")throw 0;return v}if(/^\d/.test(x))return parseFloat(x);if(F[x])return F[x](un());if(x in K)return K[x];throw 0};
+  try{const v=ex();if(i<t.length||!isFinite(v))return null;return +v.toPrecision(12)}catch(e){return null}
+}
+const U={km:["l",1000],m:["l",1],cm:["l",.01],mi:["l",1609.344],miglia:["l",1609.344],ft:["l",.3048],piedi:["l",.3048],in:["l",.0254],pollici:["l",.0254],kg:["w",1],g:["w",.001],lb:["w",.45359237],libbre:["w",.45359237],oz:["w",.0283495],l:["v",1],gal:["v",3.78541]};
+function conv(n){
+  let m=n.match(/(-?\d+(?:[.,]\d+)?)\s*°?\s*(c|f|celsius|fahrenheit)\s+(?:in|to|a)\s+°?\s*(c|f|celsius|fahrenheit)\b/);
+  if(m){const v=parseFloat(m[1].replace(",",".")),a=m[2][0],b=m[3][0];if(a==b)return null;const r=a=="c"?v*9/5+32:(v-32)*5/9;return `${v}°${a.toUpperCase()} = **${r.toFixed(2)}°${b.toUpperCase()}**`}
+  m=n.match(/(-?\d+(?:[.,]\d+)?)\s*([a-zè]+)\s+(?:in|to|a)\s+([a-zè]+)/);
+  if(m&&U[m[2]]&&U[m[3]]&&U[m[2]][0]==U[m[3]][0]){const v=parseFloat(m[1].replace(",","."));return `${v} ${m[2]} = **${+(v*U[m[2]][1]/U[m[3]][1]).toPrecision(8)} ${m[3]}**`}
+  return null;
+}
+const WC={0:"sereno",1:"prevalentemente sereno",2:"parzialmente nuvoloso",3:"coperto",45:"nebbia",48:"nebbia con brina",51:"pioviggine",61:"pioggia debole",63:"pioggia",65:"pioggia forte",71:"neve debole",73:"neve",75:"neve forte",80:"rovesci",95:"temporale"};
+async function meteo(city){
+  const g=await J(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=it`);
+  if(!g.results)return null;const p=g.results[0];
+  const w=await J(`https://api.open-meteo.com/v1/forecast?latitude=${p.latitude}&longitude=${p.longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=auto`);
+  const c=w.current,d=w.daily;
+  return `Meteo a **${p.name}** (${p.country||""}): ${WC[c.weather_code]||"variabile"}, **${c.temperature_2m}°C**, umidità ${c.relative_humidity_2m}%, vento ${c.wind_speed_10m} km/h. Oggi minima ${d.temperature_2m_min[0]}°C, massima ${d.temperature_2m_max[0]}°C.`;
+}
+const clean=t=>(t||"").replace(/=+\s*[^=\n]+\s*=+/g," ").replace(/\s+/g," ").trim();
+async function wiki(l,q,site="wikipedia"){
+  const b=`https://${l}.${site}.org/w/api.php?format=json&origin=*&action=query`;
+  const s=await J(`${b}&list=search&srlimit=3&srsearch=${encodeURIComponent(q)}`);
+  return Promise.all(s.query.search.map(async(x,i)=>{
+    const e=await J(`${b}&prop=extracts|info&inprop=url&explaintext=1&pageids=${x.pageid}&${i?"exintro=1&exchars=1200":"exchars=7000"}`);
+    const p=e.query.pages[x.pageid];return{title:p.title,text:clean(p.extract),url:p.fullurl,src:(site=="wikinews"?"Wikinews ":"Wikipedia ")+l.toUpperCase()};
+  }));
+}
+async function ddg(q){
+  const d=await J(`https://api.duckduckgo.com/?q=${encodeURIComponent(q)}&format=json&no_html=1&skip_disambig=1`);
+  const t=[d.AbstractText,...(d.RelatedTopics||[]).slice(0,4).map(r=>r.Text)].filter(Boolean).join(". ");
+  return t?[{title:d.Heading||q,text:t,url:d.AbstractURL||"https://duckduckgo.com/?q="+encodeURIComponent(q),src:"Web (DuckDuckGo)"}]:[];
+}
+async function wdata(l,q){
+  const d=await J(`https://www.wikidata.org/w/api.php?action=wbsearchentities&format=json&origin=*&limit=2&language=${l}&search=${encodeURIComponent(q)}`);
+  return d.search.filter(x=>x.description).map(x=>({title:x.label,text:`${x.label}: ${x.description}.`,url:"https:"+x.url,src:"Wikidata"}));
+}
+async function wikt(l,w){
+  const e=await J(`https://${l}.wiktionary.org/w/api.php?format=json&origin=*&action=query&prop=extracts&explaintext=1&redirects=1&titles=${encodeURIComponent(w)}`);
+  const p=Object.values(e.query.pages)[0];if(p.missing!==undefined||!p.extract)return null;
+  return{text:clean(p.extract).slice(0,700),url:`https://${l}.wiktionary.org/wiki/${encodeURIComponent(w)}`};
+}
+
+/* ---------- ranking e ragionamento ---------- */
+function rank(docs,qk,type){
+  const A=[];
+  docs.forEach((d,di)=>d.text.split(/(?<=[.!?])\s+(?=[A-ZÀ-Ý0-9"«])/).forEach((s,si)=>{if(s.length>30&&s.length<520)A.push({s,di,si,w:new Set(kw(s).map(st))})}));
+  const df={},N=A.length||1;A.forEach(x=>x.w.forEach(w=>df[w]=(df[w]||0)+1));
+  const ks=qk.map(st);
+  A.forEach(x=>{let c=0;ks.forEach(k=>{if(x.w.has(k))c+=Math.log(1+N/df[k])});
+    if(x.si==0)c+=1.2/(1+x.di);
+    if(type=="when"&&/\b(1\d{3}|20\d{2}|\d{1,2}\s+(gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre))\b/i.test(x.s))c+=2;
+    if(type=="num"&&/\d/.test(x.s))c+=1.5;
+    x.c=c});
+  return A;
+}
+const other=l=>l=="it"?"en":"it";
+async function research(q,step,L){
+  const news=/notizi|news/i.test(q);const n0=kw(cleanTopic(q)).length;let topic=cleanTopic(q);
+  if(S.topic&&(n0<1||/\b(lui|lei|esso|essa|suo|sua|suoi|sue|loro|he|she|it|his|her|its|they)\b/i.test(q)||/^e\s/i.test(q))){
+    step(`È una domanda di seguito: uso il contesto “${S.topic}”`);topic=(n0?topic+" ":"")+S.topic}
+  const qk=[...new Set(kw(topic))],type=qtype(q,qk.length);
+  step(`Parole chiave: ${qk.join(", ")||"–"} · tipo di domanda: ${type}`);
+  const att=[...new Set([topic,qk.join(" "),qk.filter(w=>w.length>3).sort((a,b)=>b.length-a.length).slice(0,2).join(" ")].filter(Boolean))];
+  let best=null,pre=[];
+  if(news){step("Cerco le notizie su Wikinews");try{pre=(await wiki(L,topic,"wikinews")).filter(d=>d.text)}catch(e){}}
+  const tryDocs=(docs,a,l)=>{
+    docs=docs.filter(d=>d.text);if(!docs.length)return 0;
+    const A=rank(docs,qk,type),top=[...A].sort((x,y)=>y.c-x.c).slice(0,3);
+    const cv=new Set();top.forEach(x=>x.w.forEach(w=>cv.add(w)));
+    const cov=qk.length?qk.map(st).filter(k=>cv.has(k)).length/qk.length:.5;
+    const ts=new Set(kw(docs[0].title).map(st));const tm=qk.length&&qk.map(st).filter(k=>ts.has(k)).length/qk.length>=.5?1:0;
+    const conf=cov*.7+tm*.3;step(`Confidenza ${Math.round(conf*100)}% (${docs[0].title})`);
+    if(!best||conf>best.conf)best={conf,docs,A};return conf;
+  };
+  outer:for(const [ai,a] of att.entries()){
+    for(const l of [L,other(L)]){
+      step(`Tentativo ${ai+1}: cerco “${a}” su Wikipedia ${l.toUpperCase()}`);
+      let docs=[];try{docs=await wiki(l,a)}catch(e){step("Wikipedia non raggiungibile da qui")}
+      if(ai==0&&l==L){try{docs=docs.concat(await ddg(a))}catch(e){}}
+      if(tryDocs([...pre,...docs],a,l)>=.55)break outer;
+    }
+    if(ai<att.length-1)step("Confidenza bassa: riformulo la ricerca");
+  }
+  if(!best||best.conf<.3){
+    step("Allargo la ricerca ad altre lingue e a Wikidata");
+    for(const l of ["fr","es","de"]){try{if(tryDocs(await wiki(l,topic),topic,l)>=.55)break}catch(e){}}
+    try{tryDocs(await wdata(L,topic),topic,L)}catch(e){}
+  }
+  if(!best||best.conf<.2)return null;
+  const {docs,A}=best;let pick;
+  if(type=="def"&&best.conf>=.5)pick=A.filter(x=>x.di==0).slice(0,4);
+  else pick=[...A].sort((x,y)=>y.c-x.c).filter(x=>x.c>0).slice(0,4).sort((x,y)=>x.di-y.di||x.si-y.si);
+  if(!pick.length)return null;
+  S.topic=docs[0].title;S.cur={s:A.filter(x=>x.di==0&&!pick.includes(x)).map(x=>x.s),i:0};
+  step("Compongo la risposta e controllo le fonti");
+  return{html:(best.conf<.45?"Non sono del tutto sicura, ma ecco cosa ho trovato:\n\n":"")+fmt(pick.map(x=>x.s).join(" ")),src:[...new Set(pick.map(x=>x.di))].map(i=>({t:docs[i].title+" · "+docs[i].src,u:docs[i].url})),more:S.cur.s.length>0};
+}
+
+/* ---------- cervello ---------- */
+const JOKES=["Perché il programmatore è andato al mare? Per vedere le onde… di rete.","Un SQL entra in un bar, vede due tavoli e chiede: posso unirmi?","Ho cercato un bug per ore: era una virgola."];
+const nm=()=>S.kb.__nome?" "+S.kb.__nome:"";
+async function think(q,step){
+  const L=lang(q),n=q.toLowerCase().trim().replace(/[?!.]+$/,"");S.lang=L;
+  step(`Analizzo la richiesta (${L=="it"?"italiano":"inglese"})`);
+  let m=q.match(/^(?:mi chiamo|il mio nome è|my name is)\s+(\p{L}+)/iu);
+  if(m){S.kb.__nome=m[1];save();return{html:`Piacere di conoscerti, **${esc(m[1])}**! Come posso aiutarti?`}}
+  m=q.match(/^(?:ricorda|impara|remember)\s+(?:che\s+|that\s+)?(.+?)\s+(?:è|sono|is|are)\s+(.+)$/i);
+  if(m){S.kb[m[1].toLowerCase()]=m[2];save();step("Salvo il concetto nella memoria a lungo termine");return{html:`Fatto! Ora so che **${esc(m[1])}** è ${esc(m[2])}.`}}
+  if(/^(dimentica tutto|forget everything)$/i.test(n)){S.kb={};save();return{html:"Ho cancellato tutto ciò che mi avevi insegnato."}}
+  if(/^(dimmi di più|dimmi di piu|approfondisci|continua|altro|tell me more|more|go on)$/.test(n)){
+    const c=S.cur;if(c&&c.i<c.s.length){step(`Continuo a leggere “${S.topic}”`);const t=c.s.slice(c.i,c.i+4);c.i+=4;return{html:fmt(t.join(" ")),more:c.i<c.s.length}}
+    return{html:"Su questo argomento non ho altro da aggiungere. Chiedimi qualcosa di più preciso!"}}
+  for(const k in S.kb)if(!k.startsWith("__")&&n.includes(k)){step("Lo so già: me l’hai insegnato tu");return{html:`**${esc(k)}** è ${esc(S.kb[k])} (me l’hai insegnato tu).`}}
+  if(/^(ciao|salve|hey|hello|hi|buongiorno|buonasera)\b/.test(n))return{html:`Ciao${nm()}! Chiedimi qualsiasi cosa: cerco, leggo, ragiono e ti rispondo con le fonti.`};
+  if(/chi sei|come ti chiami|who are you/.test(n))return{html:"Sono **Nova**, un’AI autonoma costruita da zero in questa pagina. Il mio motore capisce la domanda, pianifica, cerca su Wikipedia e sul web, ordina i passaggi per pertinenza, si accorge quando non è sicuro e riprova. Non uso API o modelli di altri."};
+  if(/cosa (sai|puoi) fare|aiuto|help/.test(n))return{html:"Posso cercare su Wikipedia, Wikinews e sul web, spiegare cosa significa una parola, calcolare, convertire unità, dirti ora e data, il meteo di una città, ricordare ciò che mi insegni (“ricorda che X è Y”) e leggerti le risposte ad alta voce."};
+  if(/come stai|how are you/.test(n))return{html:"Funziono a pieno regime! Tu, cosa vuoi scoprire?"};
+  if(/^(grazie|thanks|thank you)/.test(n))return{html:"Prego! Se vuoi approfondire, chiedimi pure."};
+  if(/battuta|joke|barzelletta/.test(n))return{html:JOKES[Math.random()*JOKES.length|0]};
+  if(/che ore|che ora|che giorno|data di oggi|what time|today.?s date|che data/.test(n)){step("Leggo l’orologio del dispositivo");const d=new Date();return{html:`Sono le **${d.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"})}** di ${d.toLocaleDateString("it-IT",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}.`}}
+  m=n.match(/(?:meteo|che tempo (?:fa )?|tempo|weather)\s*(?:a|in|di|per|for)?\s+([\p{L}' -]{2,})$/u);
+  if(m){step(`Chiedo il meteo di “${m[1]}” a Open-Meteo`);try{const r=await meteo(m[1]);if(r)return{html:fmt(r),src:[{t:"Open-Meteo",u:"https://open-meteo.com"}]}}catch(e){}return{html:"Non riesco a leggere il meteo ora: controlla la connessione."}}
+  const c=conv(n);if(c){step("Riconosco una conversione di unità");return{html:fmt(c)}}
+  const v=calc(n);if(v!==null){step("Riconosco un calcolo: lo risolvo con il mio parser matematico");return{html:`Risultato: **${v}**`}}
+  m=n.match(/(?:significato di|cosa significa|definizione di|che significa|what does (.+) mean|meaning of)\s*(.*)/);
+  if(m){const w=(m[1]||m[2]||"").trim();if(w&&!/\s/.test(w)){step(`Cerco “${w}” sul Wiktionary`);try{const d=await wikt(L,w);if(d)return{html:fmt(d.text),src:[{t:"Wiktionary",u:d.url}]}}catch(e){}}}
+  step("Nessuno strumento diretto: avvio la ricerca autonoma");
+  const r=await research(q,step,L);
+  return r||{html:"Non ho trovato fonti affidabili per questa domanda. Prova a riformularla con parole più precise, oppure insegnamelo: scrivi “ricorda che X è Y”."};
+}
+
+/* ---------- voce ---------- */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+function setV(){const b=$("#spk");b.innerHTML=S.voice?IC.on:IC.off;b.classList.toggle("on",S.voice);b.setAttribute("aria-label",S.voice?"Voce attiva":"Voce spenta");try{localStorage.setItem("nova_v",S.voice?"1":"0")}catch(e){}}
+$("#spk").onclick=()=>{S.voice=!S.voice;if(!S.voice&&window.speechSynthesis)speechSynthesis.cancel();setV()};setV();
+function say(t){if(!S.voice||!window.speechSynthesis)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang=S.lang=="en"?"en-US":"it-IT";speechSynthesis.speak(u)}catch(e){}}
+if(!SR)$("#mic").style.display="none";
+else{let rec=null;$("#mic").onclick=()=>{
+  if(rec){rec.stop();return}
+  rec=new SR();rec.lang="it-IT";rec.interimResults=true;$("#mic").classList.add("on");
+  rec.onresult=e=>{qi.value=[...e.results].map(r=>r[0].transcript).join("");grow()};
+  rec.onend=()=>{rec=null;$("#mic").classList.remove("on");if(qi.value.trim())go()};
+  rec.onerror=()=>{};try{rec.start()}catch(e){rec=null}}}
+
+/* ---------- interfaccia ---------- */
+let busy=false;
+const grow=()=>{qi.style.height="auto";qi.style.height=Math.min(qi.scrollHeight,150)+"px";send.disabled=!qi.value.trim()||busy};
+const down=()=>log.scrollTo({top:log.scrollHeight});
+function row(cls,html){const d=document.createElement("div");d.className=cls;d.innerHTML=html;log.appendChild(d);return d}
+async function ask(q){
+  if(busy)return;busy=true;grow();document.body.classList.add("chat");
+  row("u",esc(q));
+  const a=row("a wait",`<span class="sp">${IC.sp}</span><div class="c">Sto pensando…</div>`),c=a.querySelector(".c"),tr=[];
+  const step=t=>{tr.push(t);c.textContent=t;down()};down();
+  let r;try{r=await think(q,step)}catch(e){r={html:"Ho avuto un problema tecnico, forse la rete. Riprova."}}
+  a.classList.remove("wait");
+  c.innerHTML=r.html+(r.src?`<div class="src">${r.src.map(s=>`<a href="${esc(s.u)}" target="_blank" rel="noopener">${esc(s.t)}</a>`).join("")}</div>`:"")
+   +(r.more?`<div class="fu"><button type="button" data-q="Dimmi di più">Dimmi di più</button></div>`:"")
+   +`<details><summary>Ragionamento</summary><ol>${tr.map(t=>`<li>${esc(t)}</li>`).join("")}</ol></details>`;
+  const tmp=document.createElement("div");tmp.innerHTML=r.html;say(tmp.textContent);
+  busy=false;grow();down();
+}
+function go(){const q=qi.value.trim();if(!q||busy)return;qi.value="";grow();ask(q)}
+send.onclick=go;
+qi.oninput=grow;
+qi.onkeydown=e=>{if(e.key=="Enter"&&!e.shiftKey&&!matchMedia("(pointer:coarse)").matches){e.preventDefault();go()}};
+log.onclick=e=>{const b=e.target.closest("button[data-q]");if(b){b.remove();ask(b.dataset.q)}};
+$("#clr").onclick=()=>{if(window.speechSynthesis)speechSynthesis.cancel();log.querySelectorAll(".u,.a").forEach(x=>x.remove());S.topic=S.cur=null;document.body.classList.remove("chat");busy=false;hero();grow()};
+function hero(){const h=new Date().getHours();$("#hi").textContent=(h<6?"Buonanotte":h<13?"Buongiorno":h<18?"Buon pomeriggio":"Buonasera")+nm()+", come posso aiutarti?"}
+hero();
+$("#pl").innerHTML=["Chi era Leonardo da Vinci?","Quanto fa 15% di 240?","Meteo a Roma","Cos’è la fotosintesi?","Ultime notizie sulla NASA"].map(t=>`<button type="button" data-q="${esc(t)}">${esc(t)}</button>`).join("");
+grow();
+</script></body></html>
