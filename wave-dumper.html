@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wave</title>
+<style>
+:root{color-scheme:dark;--text:#eaf8ff;--muted:#a9d4e8;--accent:#5ee0ff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{font-family:"Poppins","Segoe UI",system-ui,sans-serif;color:var(--text);background:linear-gradient(180deg,#020817 0%,#06305a 55%,#0c7aa8 100%);overflow:hidden;position:relative}
+.glow,.aurora,.rays,.bubble,.sea .layer,.logo,.moon,.stars{will-change:transform}
+.glow{position:absolute;border-radius:50%;animation:float 12s ease-in-out infinite}
+.g1{width:460px;height:460px;background:radial-gradient(circle,rgba(27,109,255,.5),transparent 68%);top:-180px;left:-190px}
+.g2{width:420px;height:420px;background:radial-gradient(circle,rgba(0,224,255,.45),transparent 68%);top:22%;right:-190px;animation-delay:-4s}
+.g3{width:380px;height:380px;background:radial-gradient(circle,rgba(123,77,255,.35),transparent 68%);bottom:14%;left:-40px;animation-delay:-8s}
+@keyframes float{50%{transform:translate3d(30px,-40px,0)}}
+.stars{position:absolute;inset:0;background-image:radial-gradient(1.5px 1.5px at 20% 15%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 70% 10%,#fff 50%,transparent 51%),radial-gradient(1.5px 1.5px at 85% 30%,#cfefff 50%,transparent 51%),radial-gradient(1px 1px at 40% 28%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 10% 40%,#cfefff 50%,transparent 51%),radial-gradient(1.5px 1.5px at 58% 5%,#fff 50%,transparent 51%);animation:twinkle 4s ease-in-out infinite}
+@keyframes twinkle{50%{opacity:.4}}
+.bubble{position:absolute;bottom:-20px;border-radius:50%;border:1px solid rgba(190,240,255,.5);background:rgba(190,240,255,.08);animation:rise linear infinite}
+@keyframes rise{to{transform:translate3d(20px,-110vh,0);opacity:0}}
+.sea{position:absolute;left:0;bottom:0;width:100%;height:40%;overflow:hidden;pointer-events:none}
+.sea .layer{position:absolute;left:0;bottom:0;width:200%;height:100%;animation:drift linear infinite}
+.sea svg{display:block;width:100%;height:100%}
+.l0{animation-duration:34s;opacity:.28}.l1{animation-duration:22s;opacity:.35}.l2{animation-duration:15s;opacity:.55;animation-direction:reverse}.l3{animation-duration:10s;opacity:.9}
+@keyframes drift{to{transform:translate3d(-50%,0,0)}}
+.aurora{position:absolute;top:-10%;left:-20%;width:140%;height:60%;background:linear-gradient(100deg,transparent 5%,rgba(0,255,200,.16) 30%,rgba(80,140,255,.2) 55%,rgba(170,90,255,.15) 75%,transparent 95%);transform:skewY(-6deg);animation:aur 16s ease-in-out infinite alternate}
+@keyframes aur{to{transform:skewY(5deg) translate3d(8%,0,0);opacity:.7}}
+.raysw{position:absolute;top:-10%;left:0;width:100%;height:85%;overflow:hidden;-webkit-mask-image:linear-gradient(#000,transparent 80%);mask-image:linear-gradient(#000,transparent 80%)}
+.rays{position:absolute;top:0;left:50%;width:150%;height:100%;transform-origin:50% 0;transform:translateX(-50%) rotate(-5deg);background:repeating-conic-gradient(from 168deg at 50% 0%,rgba(150,235,255,.13) 0 3deg,transparent 3deg 11deg);animation:sway 14s ease-in-out infinite alternate}
+@keyframes sway{to{transform:translateX(-50%) rotate(5deg)}}
+.moon{position:absolute;top:7%;right:11%;width:84px;height:84px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff,#d4f1ff 45%,#86c9ff);box-shadow:0 0 70px 26px rgba(140,210,255,.3);animation:bob 9s ease-in-out infinite}
+.busy .glow,.busy .aurora,.busy .rays,.busy .bubble,.busy .stars,.busy .moon{animation-play-state:paused}
+main{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;gap:18px;transition:opacity .45s ease}
+main.leaving{opacity:0;pointer-events:none}
+main>*{opacity:0;animation:in .9s ease-out forwards}
+main>*:nth-child(2){animation-delay:.2s}main>*:nth-child(3){animation-delay:.4s}main>*:nth-child(4){animation-delay:.6s}
+@keyframes in{from{opacity:0;transform:translate3d(0,22px,0)}to{opacity:1;transform:none}}
+.logo{width:132px;height:132px;filter:drop-shadow(0 0 22px rgba(94,224,255,.55));animation:bob 5s ease-in-out infinite}
+@keyframes bob{50%{transform:translate3d(0,-10px,0)}}
+h1{font-size:clamp(1.4rem,6.4vw,3.2rem);font-weight:800;letter-spacing:.02em;line-height:1.2;background:linear-gradient(180deg,#fff,#7fe3ff 70%,#2aa6ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.dfile{display:inline-block;height:.95em;width:.78em;vertical-align:-.12em;margin:0 .04em}
+.beta{display:block;margin-top:.5em;font-size:.34em;font-weight:600;letter-spacing:.35em;-webkit-text-fill-color:var(--accent);color:var(--accent)}
+.tag{color:var(--muted);font-size:clamp(1rem,3.8vw,1.25rem);max-width:30ch;line-height:1.5;font-weight:300}
+button{margin-top:14px;position:relative;overflow:hidden;cursor:pointer;font-weight:600;font-size:1.05rem;line-height:1;font-family:inherit;color:#02203a;padding:17px 38px;border:0;border-radius:999px;background:linear-gradient(135deg,#9af0ff,#3fc8ff);box-shadow:0 8px 26px rgba(63,200,255,.4),inset 0 1px 0 rgba(255,255,255,.7);transition:transform .2s;display:inline-flex;gap:10px;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+button:active{transform:scale(.97)}
+button:disabled{opacity:.6;cursor:wait}
+button.ghost{background:rgba(2,12,30,.55);color:var(--text);box-shadow:inset 0 0 0 1px rgba(160,230,255,.35)}
+.rip{position:absolute;border-radius:50%;background:rgba(255,255,255,.7);transform:scale(0);animation:rip .6s ease-out forwards;pointer-events:none}
+@keyframes rip{to{transform:scale(4);opacity:0}}
+.wipe{position:fixed;left:0;top:100%;width:100%;height:130%;z-index:10;pointer-events:none;display:none;will-change:transform;transform:translate3d(0,0,0)}
+.wipe.go{display:block;animation:wipe 1.4s cubic-bezier(.65,0,.35,1) forwards}
+@keyframes wipe{to{transform:translate3d(0,-240vh,0)}}
+#app{position:absolute;inset:0;z-index:3;visibility:hidden;overflow-y:auto;padding:22px 18px 30px;-webkit-overflow-scrolling:touch}
+#app.on{visibility:visible}
+.wrap{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.top{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
+#app h1{font-size:clamp(1.3rem,5.6vw,2.3rem)}
+.mini{width:68px;height:68px;filter:drop-shadow(0 0 16px rgba(94,224,255,.55))}
+.rv{opacity:0;transform:translate3d(0,26px,0)}
+#app.on .rv{animation:rv .7s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--i)*.12s + .05s)}
+@keyframes rv{to{opacity:1;transform:none}}
+.card{background:rgba(6,30,60,.78);border:1px solid rgba(160,230,255,.25);border-radius:22px;padding:18px;box-shadow:0 16px 40px rgba(0,10,30,.4);display:flex;flex-direction:column;gap:12px}
+.lbl{display:block;margin-bottom:6px;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+textarea{width:100%;min-height:220px;resize:vertical;font:13px/1.5 ui-monospace,Menlo,monospace;color:var(--text);background:rgba(2,12,30,.6);border:1px solid rgba(160,230,255,.25);border-radius:14px;padding:14px;outline:none;transition:border-color .2s}
+textarea:focus{border-color:var(--accent)}
+#dump{width:100%;margin-top:4px;font-size:1.15rem;padding:19px}
+#out{display:none}
+.bar{height:5px;border-radius:5px;background:rgba(160,230,255,.15);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#5ee0ff,#2aa6ff);transition:width .35s}
+#log{font:12.5px/1.6 ui-monospace,Menlo,monospace;color:#bfeaff;max-height:150px;overflow:auto;white-space:pre-wrap}
+#log .err{color:#ff9aa8}#log .ok{color:#8affc1}#log .warn{color:#ffd98a}
+#res{display:none;flex-direction:column;gap:10px}
+#prev{max-height:260px;overflow:auto;font:12px/1.5 ui-monospace,Menlo,monospace;background:rgba(2,12,30,.6);padding:12px;border-radius:12px;white-space:pre-wrap;word-break:break-all;color:#cfeeff}
+.sm{margin:0;padding:10px 16px;font-size:.88rem}
+.seg{display:flex;gap:8px}.seg .tab{flex:1;background:rgba(2,12,30,.55);color:var(--text);box-shadow:inset 0 0 0 1px rgba(160,230,255,.3)}
+.seg .tab.on{background:linear-gradient(135deg,#9af0ff,#3fc8ff);color:#02203a;box-shadow:none}
+.lblrow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}.lblrow .lbl{margin:0}
+.tools{display:flex;gap:8px}
+input[type=password]{width:100%;font:16px ui-monospace,Menlo,monospace;color:var(--text);background:rgba(2,12,30,.6);border:1px solid rgba(160,230,255,.25);border-radius:14px;padding:14px;outline:none}
+input[type=password]:focus{border-color:var(--accent)}
+.hint{display:block;margin-top:6px;color:var(--muted);font-size:.78rem}
+#thinkBox{display:none}#thinkBox summary{cursor:pointer;color:var(--muted);font-size:.9rem}
+#think{margin-top:8px;max-height:160px;overflow:auto;font:12px/1.5 ui-monospace,Menlo,monospace;color:#a9d4e8;white-space:pre-wrap;opacity:.9}
+#msg{color:var(--accent);font-size:.9rem;min-height:1.2em}
+@media (prefers-reduced-motion:reduce){*{animation-duration:0s!important;transition-duration:0s!important}}
+</style>
+</head>
+<body>
+<div class="glow g1"></div><div class="glow g2"></div><div class="glow g3"></div>
+<div class="stars"></div><div class="aurora"></div><div class="raysw"><div class="rays"></div></div><div class="moon"></div>
+<div id="bubbles"></div>
+<div class="sea">
+  <div class="layer l0"><svg viewBox="0 0 2400 200" preserveAspectRatio="none"><path fill="#bff3ff" d="M0 70 Q300 -10 600 70 T1200 70 T1800 70 T2400 70 V200 H0Z"/></svg></div>
+  <div class="layer l1"><svg viewBox="0 0 2400 200" preserveAspectRatio="none"><path fill="#7fe3ff" d="M0 90 Q150 20 300 90 T600 90 T900 90 T1200 90 T1500 90 T1800 90 T2100 90 T2400 90 V200 H0Z"/></svg></div>
+  <div class="layer l2"><svg viewBox="0 0 2400 200" preserveAspectRatio="none"><path fill="#2aa6ff" d="M0 110 Q150 50 300 110 T600 110 T900 110 T1200 110 T1500 110 T1800 110 T2100 110 T2400 110 V200 H0Z"/></svg></div>
+  <div class="layer l3"><svg viewBox="0 0 2400 200" preserveAspectRatio="none"><path fill="#0a4d86" d="M0 130 Q150 80 300 130 T600 130 T900 130 T1200 130 T1500 130 T1800 130 T2100 130 T2400 130 V200 H0Z"/></svg></div>
+</div>
+
+<main id="home">
+  <svg class="logo" viewBox="0 0 100 100" aria-label="Logo Wave">
+    <defs>
+      <clipPath id="c"><circle cx="50" cy="50" r="40"/></clipPath>
+      <linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b8f5ff"/><stop offset="1" stop-color="#1f8fff"/></linearGradient>
+    </defs>
+    <circle cx="50" cy="50" r="46" fill="none" stroke="#9af0ff" stroke-width="2" stroke-dasharray="6 8" opacity=".7"><animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="18s" repeatCount="indefinite"/></circle>
+    <circle cx="50" cy="50" r="40" fill="#04284d"/>
+    <g clip-path="url(#c)">
+      <g><path fill="#2aa6ff" opacity=".6" d="M-50 50 Q-37.5 30 -25 50 T0 50 T25 50 T50 50 T75 50 T100 50 T125 50 T150 50 V100 H-50Z"/><animateTransform attributeName="transform" type="translate" from="-50 0" to="0 0" dur="3s" repeatCount="indefinite"/></g>
+      <g><path fill="url(#g)" d="M-50 60 Q-37.5 38 -25 60 T0 60 T25 60 T50 60 T75 60 T100 60 T125 60 T150 60 V100 H-50Z"/><animateTransform attributeName="transform" type="translate" from="0 0" to="-50 0" dur="2.2s" repeatCount="indefinite"/></g>
+      <g><path fill="#fff" opacity=".9" d="M-50 72 Q-37.5 58 -25 72 T0 72 T25 72 T50 72 T75 72 T100 72 T125 72 T150 72 V100 H-50Z"/><animateTransform attributeName="transform" type="translate" from="-50 0" to="0 0" dur="1.6s" repeatCount="indefinite"/></g>
+    </g>
+  </svg>
+  <h1 aria-label="WaveScriptDumper.com (BETA)">WaveScript<svg class="dfile" viewBox="0 0 24 30" aria-hidden="true"><defs><linearGradient id="df" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#2aa6ff"/></linearGradient></defs><path fill="url(#df)" d="M9 2 H11 C19 2 22 8 22 15 C22 22 19 28 11 28 H3 V8 Z"/><path fill="#7fe3ff" d="M9 2 V8 H3 Z"/><rect x="9" y="12" width="8" height="2" rx="1" fill="#04284d" opacity=".55"/><rect x="9" y="16" width="8" height="2" rx="1" fill="#04284d" opacity=".55"/><rect x="9" y="20" width="5" height="2" rx="1" fill="#04284d" opacity=".55"/></svg>umper.com<span class="beta">(BETA)</span></h1>
+  <p class="tag">Ride the wave.</p>
+  <button id="go">Continue <span>→</span></button>
+</main>
+
+<div class="wipe" id="wipe"><svg viewBox="0 0 1200 120" preserveAspectRatio="none" style="display:block;width:100%;height:90px;margin-bottom:-1px"><path d="M0 120 V60 Q150 0 300 60 T600 60 T900 60 T1200 60 V120 Z" fill="#7fe3ff"/></svg><div style="height:calc(100% - 89px);background:linear-gradient(180deg,#7fe3ff,#2aa6ff 35%,#06305a)"></div></div>
+
+<section id="app"><div class="wrap">
+  <div class="top rv" style="--i:0"><div id="slotLogo"></div><div id="slotName"></div></div>
+  <div class="card rv" style="--i:2">
+    <div class="seg"><button class="sm tab on" id="tLocal">Local</button><button class="sm tab" id="tAI">AI · Groq</button></div>
+    <div id="aiBox" style="display:none"><span class="lbl">Groq API key</span><input id="key" type="password" placeholder="gsk_..." autocomplete="off" autocapitalize="off" spellcheck="false"><span class="hint">Model: openai/gpt-oss-120b. The key stays in this browser and is sent only to Groq.</span></div>
+    <div><div class="lblrow"><span class="lbl">Roblox LocalScript</span><div class="tools"><button class="sm ghost" id="up">Upload</button><button class="sm ghost" id="clr">Clear</button></div></div><textarea id="src" placeholder="Paste your Roblox LocalScript here..." spellcheck="false" autocapitalize="off" autocomplete="off"></textarea><input type="file" id="file" hidden accept=".lua,.luau,.txt,.html,.js,text/*"></div>
+    <button id="dump"><svg width="20" height="24" viewBox="0 0 24 30"><path fill="#02203a" d="M9 2 H11 C19 2 22 8 22 15 C22 22 19 28 11 28 H3 V8 Z"/></svg> <span id="dl">Dump</span></button>
+  </div>
+  <div class="card" id="out">
+    <div class="bar"><i id="barI"></i></div>
+    <div id="log"></div>
+    <details id="thinkBox" open><summary>AI thinking</summary><pre id="think"></pre></details>
+    <div id="res"><pre id="prev"></pre><button id="cp" class="ghost">Copy</button></div>
+    <div id="msg"></div>
+  </div>
+</div></section>
+
+<script>
+var $=function(i){return document.getElementById(i)};
+var sleep=function(ms){return new Promise(function(r){setTimeout(r,ms)})};
+
+/* bubbles (few, GPU-only) */
+(function(){var b=$('bubbles');for(var i=0;i<9;i++){var e=document.createElement('div');e.className='bubble';var s=6+Math.random()*16;e.style.cssText='width:'+s+'px;height:'+s+'px;left:'+Math.random()*100+'%;animation-duration:'+(10+Math.random()*12)+'s;animation-delay:-'+Math.random()*15+'s';b.appendChild(e)}})();
+
+/* pre-build the app header once (unique ids so it survives hiding #home) */
+(function(){
+  function cl(h){return h.replace(/id="(\w+)"/g,'id="$1b"').replace(/url\(#(\w+)\)/g,'url(#$1b)')}
+  $('slotLogo').innerHTML=cl(document.querySelector('#home .logo').outerHTML).replace('class="logo"','class="mini"');
+  $('slotName').innerHTML=cl(document.querySelector('#home h1').outerHTML);
+})();
+
+/* smooth open transition */
+$('go').addEventListener('click',function(ev){
+  var b=this,r=b.getBoundingClientRect(),d=document.createElement('span');
+  d.className='rip';d.style.cssText='width:60px;height:60px;left:'+(ev.clientX-r.left-30)+'px;top:'+(ev.clientY-r.top-30)+'px';
+  b.appendChild(d);b.disabled=true;
+  document.body.classList.add('busy');
+  requestAnimationFrame(function(){requestAnimationFrame(function(){
+    $('wipe').classList.add('go');$('home').classList.add('leaving');
+    setTimeout(function(){$('app').classList.add('on')},650);
+    setTimeout(function(){$('home').style.display='none';$('wipe').style.display='none';document.body.classList.remove('busy')},1500);
+  })});
+});
+
+/* ---------- Lua helpers ---------- */
+var TOK=/--\[(=*)\[[\s\S]*?\]\1\]|--[^\n]*|\[(=*)\[[\s\S]*?\]\2\]|"((?:[^"\\\n]|\\[\s\S])*)"|'((?:[^'\\\n]|\\[\s\S])*)'/g;
+var ESC={n:'\n',t:'\t',r:'\r',a:'\x07',b:'\b',f:'\f',v:'\v'};
+function unq(s){return s.replace(/\\(?:(\d{1,3})|x([0-9a-fA-F]{2})|z\s*|([\s\S]))/g,function(m,d,h,c){
+  if(d!==undefined)return String.fromCharCode(+d&255);
+  if(h)return String.fromCharCode(parseInt(h,16));
+  if(c===undefined)return'';
+  return ESC[c]||c})}
+function printable(s){return s.length>0&&/^[\x20-\x7e\n\t]*$/.test(s)}
+function q(s){return'"'+s.replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/\n/g,'\\n').replace(/\t/g,'\\t')+'"'}
+
+/* ---------- detection ---------- */
+var SIGS=[
+ ['WeAreDevs',/wearedevs\.net|local\s+v0\s*=\s*string\.char\s*;?\s*local\s+v1\s*=\s*string\.byte/i,'str'],
+ ['Moonveil',/moon\s*veil/i,'vm'],
+ ['MoonSec V3',/moon\s*sec/i,'vm'],
+ ['Luraph',/lura\.ph|luraph|LPH[_!](?:JIT|NO_VIRTUALIZE|ENCSTR|NO_UPVALUES)?/i,'vm'],
+ ['IronBrew',/iron\s*brew/i,'vm'],
+ ['Prometheus',/prometheus\s+obfuscator|levno/i,'ren'],
+ ['PSU',/psu\.dev|PSU[_ ](?:obfuscat|protect|ENC)|protected\s+by\s+psu/i,'vm'],
+ ['Synapse Xen',/synapse\s*xen|\bSX_VM\b/i,'vm'],
+ ['Boronide',/boronide/i,'vm'],
+ ['Hercules',/hercules\s+obfuscator/i,'ren'],
+ ['Luarmor',/luarmor/i,'vm']
+];
+function detect(c){
+  for(var i=0;i<SIGS.length;i++)if(SIGS[i][1].test(c))return{name:SIGS[i][0],kind:SIGS[i][2]};
+  var esc=(c.match(/\\\d{1,3}/g)||[]).length,vm=/return\s*\(\s*function\s*\(\s*\.\.\.\s*\)/.test(c)&&/\{\s*(?:\d+\s*,\s*){40,}/.test(c);
+  if(vm)return{name:'Unknown VM-based obfuscator',kind:'vm'};
+  if(/loadstring\s*\(\s*(?:game:HttpGet|["'][A-Za-z0-9+\/=]{80,})/.test(c)&&/[A-Za-z0-9+\/=]{200,}/.test(c))return{name:'Base64 / loadstring packer',kind:'str'};
+  if(/\b[Il]{8,}\b/.test(c))return{name:'Il-name renamer (unknown tool)',kind:'ren'};
+  if(esc>=30||/\b(?:_0x[0-9a-f]{3,}|v\d{1,4})\b[\s\S]{0,40}string\.char/.test(c)&&esc>=8)return{name:'String-escape obfuscation (unknown tool)',kind:'str'};
+  return null;
+}
+
+/* ---------- best-effort deobfuscation ---------- */
+function xorDecode(c,log){
+  var m=/local\s+function\s+(\w+)\s*\(\s*\w+\s*,\s*\w+\s*\)[\s\S]{0,300}?%\s*256/.exec(c);
+  if(!m)return c;
+  var n=0,re=new RegExp('\\b'+m[1]+'\\s*\\(\\s*"((?:[^"\\\\\\n]|\\\\[\\s\\S])*)"\\s*,\\s*"((?:[^"\\\\\\n]|\\\\[\\s\\S])*)"\\s*\\)','g');
+  c=c.replace(re,function(all,e,k){
+    e=unq(e);k=unq(k);if(!k.length)return all;
+    for(var off=0;off<2;off++){
+      var o='';for(var i=1;i<=e.length;i++)o+=String.fromCharCode((e.charCodeAt(i-1)^k.charCodeAt((i-off)%k.length))&255);
+      if(printable(o)){n++;return q(o)}
+    }
+    return all;
+  });
+  if(n)log('Decrypted '+n+' XOR-encrypted string(s)','ok');
+  return c;
+}
+function cleanStrings(c){
+  var n=0;
+  c=c.replace(TOK,function(m,a,b,dq,sq){
+    var body=dq!==undefined?dq:sq;if(body===undefined||!/\\/.test(body))return m;
+    var d=unq(body);if(printable(d)){n++;return q(d)}return m});
+  for(var i=0;i<60;i++){
+    var p=c;c=c.replace(/"((?:[^"\\\n]|\\[\s\S])*)"\s*\.\.\s*"((?:[^"\\\n]|\\[\s\S])*)"/g,'"$1$2"');if(p===c)break}
+  return{code:c,n:n};
+}
+function beautify(c){
+  var hold=[];
+  c=c.replace(TOK,function(m){hold.push(m);return'\u0001'+(hold.length-1)+'\u0001'});
+  c=c.replace(/;/g,';\n').replace(/\b(then|do|else|repeat)\b/g,'$1\n').replace(/\b(function\s*[\w.:]*\s*\([^()]*\))/g,'$1\n')
+     .replace(/(^|[^\w.:])(end|else|elseif|until|local|return|if|for|while)\b/g,'$1\n$2').replace(/\n\s*\n+/g,'\n');
+  var lv=0,out=[];
+  c.split('\n').forEach(function(l){
+    l=l.trim();if(!l)return;
+    var cl=/^(end|else|elseif|until)\b/.test(l);if(cl)lv=Math.max(0,lv-1);
+    out.push(new Array(lv+1).join('  ')+l);
+    var op=(l.match(/\b(function|if|for|while|repeat)\b/g)||[]).length+(/^do\b/.test(l)?1:0);
+    var ed=(l.match(/\b(end|until)\b/g)||[]).length-(/^(end|until)\b/.test(l)?1:0);
+    lv=Math.max(0,lv+op-ed+(/^(else|elseif)\b/.test(l)?1:0));
+  });
+  return out.join('\n').replace(/\u0001(\d+)\u0001/g,function(m,i){return hold[+i]});
+}
+
+/* ---------- UI ---------- */
+var last='';
+function log(t,c){var d=document.createElement('div');if(c)d.className=c;d.textContent='> '+t;$('log').appendChild(d);$('log').scrollTop=1e5}
+function prog(p){$('barI').style.width=p+'%'}
+$('dump').addEventListener('click',async function(){
+  var b=this,code=$('src').value,out=$('out');
+  out.style.display='flex';$('log').innerHTML='';$('res').style.display='none';$('msg').textContent='';prog(0);
+  if(running){if(ctl)ctl.abort();return}
+  if(!code.trim()){log('Paste your LocalScript first.','err');return}
+  $('thinkBox').style.display='none';
+  if(mode==='ai'){await runAI(code);return}
+  b.disabled=true;
+  try{
+    log('Reading script ('+code.length+' chars)...');prog(15);await sleep(250);
+    log('Checking for obfuscation...');prog(35);await sleep(300);
+    var d=detect(code),res=code,tag='not obfuscated';
+    if(!d){log('No obfuscation detected.','ok');prog(100)}
+    else{
+      tag=d.name;
+      log('Obfuscated! Type: '+d.name,'warn');prog(55);await sleep(300);
+      log('Trying to deobfuscate...');prog(70);await sleep(300);
+      if(d.kind==='str'||d.name==='WeAreDevs')res=xorDecode(res,log);
+      var s=cleanStrings(res);res=s.code;
+      if(s.n)log('Decoded '+s.n+' escaped string(s)','ok');
+      if(code.length<400000){res=beautify(res);log('Reformatted the code','ok')}
+      if(d.kind==='vm'){
+        log('VM-based: the real logic is compiled into bytecode and cannot be fully restored in a browser. Showing the cleaned output.','warn');
+        var u=(res.match(/https?:\/\/[^\s"'\\)]+/g)||[]).filter(function(x,i,a){return a.indexOf(x)===i});
+        if(u.length)log('Readable URLs found: '+u.slice(0,5).join(' , '),'ok');
+      }
+      prog(100);log('Done.','ok');
+    }
+    last='-- WaveScriptDumper.com (BETA) | detected: '+tag+'\n'+res;
+    $('prev').textContent=last.slice(0,60000)+(last.length>60000?'\n...':'');
+    $('res').style.display='flex';
+  }catch(e){log('Error: '+e.message,'err')}
+  b.disabled=false;
+});
+var mode='local',running=false,ctl=null;
+function setMode(m){mode=m;$('tLocal').classList.toggle('on',m==='local');$('tAI').classList.toggle('on',m==='ai');$('aiBox').style.display=m==='ai'?'block':'none'}
+$('tLocal').addEventListener('click',function(){setMode('local')});
+$('tAI').addEventListener('click',function(){setMode('ai')});
+try{var sk=localStorage.getItem('wsd_key');if(sk)$('key').value=sk}catch(e){}
+$('up').addEventListener('click',function(){$('file').click()});
+$('file').addEventListener('change',function(){
+  var f=this.files&&this.files[0];if(!f)return;
+  var r=new FileReader();r.onload=function(){$('src').value=String(r.result);$('msg').textContent='';$('out').style.display='none'};
+  r.onerror=function(){$('out').style.display='flex';log('Could not read that file.','err')};
+  r.readAsText(f);this.value='';
+});
+$('clr').addEventListener('click',function(){
+  if(ctl)ctl.abort();
+  $('src').value='';$('out').style.display='none';$('res').style.display='none';$('log').innerHTML='';$('think').textContent='';$('thinkBox').style.display='none';$('msg').textContent='';last='';prog(0);
+});
+
+var SYS='You are an expert Roblox Luau reverse engineer who deobfuscates scripts for security analysis. The user sends a Roblox LocalScript. Do this:\n1. Identify the obfuscator or packer if any (for example WeAreDevs, Moonveil, MoonSec V3, Luraph, IronBrew, Prometheus, PSU, Synapse Xen, Boronide, Hercules, Luarmor, or a custom one). Start your answer with one line: OBFUSCATOR: <name or None>.\n2. Reverse it as far as you can: decode escaped and encrypted strings, fold constant expressions, undo control-flow flattening and junk code, unwrap loadstring layers, and rename variables to meaningful names.\n3. Output the full deobfuscated code in one ```lua block, readable and indented, with short comments on what each part does.\n4. After the code, list in a few bullets what the script does (remotes, URLs, services used) and anything you could not recover (for example VM bytecode you cannot decode). Never invent code you cannot justify from the input; mark guesses clearly. Never run or execute anything.';
+async function runAI(code){
+  var key=$('key').value.trim(),dlb=$('dl'),th=$('think');
+  if(!/^gsk_/.test(key)){log('Enter a valid Groq API key (starts with gsk_).','err');return}
+  try{localStorage.setItem('wsd_key',key)}catch(e){}
+  var d=detect(code);
+  log('Local scan: '+(d?'obfuscated, looks like '+d.name:'no known signature'),d?'warn':'ok');
+  log('Connecting to Groq (openai/gpt-oss-120b)...');prog(6);
+  th.textContent='';$('thinkBox').style.display='block';$('thinkBox').open=true;
+  running=true;dlb.textContent='Stop';ctl=new AbortController();
+  var think='',ans='',started=false,raf=0;
+  function paint(){raf=0;th.textContent=think;th.scrollTop=1e6;
+    if(ans){$('res').style.display='flex';$('prev').textContent=ans.slice(0,60000);$('prev').scrollTop=1e6}
+    prog(ans?Math.min(96,60+ans.length/(code.length*.8+600)*36):Math.min(58,6+think.length/45))}
+  try{
+    var r=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',signal:ctl.signal,
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+      body:JSON.stringify({model:'openai/gpt-oss-120b',stream:true,temperature:0.2,max_completion_tokens:8000,reasoning_effort:'medium',include_reasoning:true,
+        messages:[{role:'system',content:SYS},{role:'user',content:(d?'Local scan guess: '+d.name+'\n\n':'')+'Deobfuscate this LocalScript:\n\n'+code}]})});
+    if(!r.ok){var t='';try{t=(JSON.parse(await r.text()).error||{}).message||''}catch(e){}
+      throw new Error(r.status===401?'Invalid API key.':r.status===429?'Rate limit reached. Wait a bit and retry. '+t:'Groq error '+r.status+'. '+t)}
+    log('AI is thinking...','warn');
+    var rd=r.body.getReader(),dec=new TextDecoder(),buf='';
+    for(;;){
+      var x=await rd.read();if(x.done)break;
+      buf+=dec.decode(x.value,{stream:true});var ls=buf.split('\n');buf=ls.pop();
+      for(var i=0;i<ls.length;i++){
+        var l=ls[i].trim();if(l.indexOf('data:')!==0)continue;l=l.slice(5).trim();if(l==='[DONE]')continue;
+        var j;try{j=JSON.parse(l)}catch(e){continue}
+        var dl=j.choices&&j.choices[0]&&j.choices[0].delta;if(!dl)continue;
+        if(dl.reasoning)think+=dl.reasoning;else if(dl.reasoning_content)think+=dl.reasoning_content;
+        if(dl.content){if(!started){started=true;log('Writing the deobfuscated code...','ok')}ans+=dl.content}
+      }
+      if(!raf)raf=requestAnimationFrame(paint);
+    }
+    paint();
+    if(!ans.trim())throw new Error('The AI returned no answer. Try again.');
+    var m=/```(?:lua|luau)?\n([\s\S]*?)```/.exec(ans);
+    last=m?m[1]:ans;prog(100);log('Done.','ok');$('thinkBox').open=false;
+  }catch(e){
+    if(e.name==='AbortError'){log('Stopped.','warn')}
+    else if(e instanceof TypeError){log('Network blocked. AI mode needs internet and a page opened outside Claude (download the file and open it in your browser).','err')}
+    else log(e.message,'err');
+    if(ans)last=ans;
+  }
+  running=false;dlb.textContent='Dump';ctl=null;
+}
+$('cp').addEventListener('click',async function(){
+  try{await navigator.clipboard.writeText(last);$('msg').textContent='Copied to clipboard.'}
+  catch(e){var rg=document.createRange();rg.selectNodeContents($('prev'));var s=getSelection();s.removeAllRanges();s.addRange(rg);$('msg').textContent='Text selected: copy it manually.'}
+});
+</script>
+</body>
+</html>
