@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gooner Hub - Key System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Gotham:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Gotham', sans-serif;
+        }
+        body {
+            background-color: #080808;
+            color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            width: 100%;
+            max-width: 440px;
+            background: #111111;
+            border: 1px solid #272727;
+            border-radius: 14px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            text-align: center;
+        }
+        h1 {
+            font-size: 22px;
+            margin-bottom: 8px;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+        p {
+            font-size: 13px;
+            color: #9b9b9b;
+            margin-bottom: 24px;
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: none;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 12px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary {
+            background-color: #f5f5f5;
+            color: #080808;
+        }
+        .btn-primary:hover {
+            background-color: #dcdcdc;
+        }
+        .btn-secondary {
+            background-color: #1b1b1b;
+            color: #f5f5f5;
+            border: 1px solid #414141;
+        }
+        .btn-secondary:hover {
+            background-color: #2a2a2a;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .key-box {
+            background: #0d0d0d;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 15px;
+            font-family: monospace;
+            font-size: 14px;
+            color: #3cff78;
+            word-break: break-all;
+            letter-spacing: 1px;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+        .badge-locked { background: rgba(255, 60, 60, 0.15); color: #ff5c5c; border: 1px solid rgba(255, 60, 60, 0.3); }
+        .badge-unlocked { background: rgba(60, 255, 120, 0.15); color: #3cff78; border: 1px solid rgba(60, 255, 120, 0.3); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>GOONER HUB</h1>
+        <p>Sistema di Chiavi (Durata: 24 Ore)</p>
+
+        <!-- STATO DI BLOCCO / PASSAGGIO LINKVERTISE -->
+        <div id="stepLink">
+            <div id="statusBadge" class="status-badge badge-locked">🔒 Linkvertise Richiesto</div>
+            <p>Completa il passaggio sul link per sbloccare la generazione della chiave.</p>
+            <button class="btn btn-secondary" onclick="completeLinkvertise()">1. Fai il Linkvertise</button>
+            <button id="btnGenerate" class="btn btn-primary" onclick="generateKey()" disabled>2. Genera Chiave</button>
+        </div>
+
+        <!-- SEZIONE CHIAVE ATTIVA -->
+        <div id="stepKey" class="hidden">
+            <div class="status-badge badge-unlocked">✨ Chiave Attiva</div>
+            
+            <div class="key-box" id="keyDisplay">GNR-XXXX-XXXX-XXXX</div>
+
+            <button class="btn btn-primary" onclick="copyKey()">Copia Chiave</button>
+            
+            <p style="margin-top: 15px; font-size: 12px;">La tua chiave scadrà tra:</p>
+            <div style="font-size: 18px; font-weight: bold; color: #fff; margin-top: 5px;" id="countdown">24:00:00</div>
+        </div>
+    </div>
+
+    <script>
+        const LINKVERTISE_URL = "https://link-center.net/9444892/MakeMOMlrcPH";
+        const DURATION_MS = 24 * 60 * 60 * 1000; // 24 ore in millisecondi
+
+        function completeLinkvertise() {
+            // Apre il link Linkvertise
+            window.open(LINKVERTISE_URL, '_blank');
+            // Segna che l'utente ha fatto il passaggio
+            localStorage.setItem("gooner_link_done", "true");
+            // Sblocca il pulsante di generazione chiave
+            document.getElementById("btnGenerate").removeAttribute("disabled");
+            document.getElementById("statusBadge").className = "status-badge badge-unlocked";
+            document.getElementById("statusBadge").innerText = "🔓 Link Completato!";
+        }
+
+        function generateKey() {
+            // Controlla se ha fatto il linkvertise
+            if (localStorage.getItem("gooner_link_done") !== "true") {
+                alert("Prima devi completare il passaggio su Linkvertise!");
+                return;
+            }
+
+            const now = new Date().getTime();
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            let key = "GNR-";
+            for (let i = 0; i < 16; i++) {
+                key += chars.charAt(Math.floor(Math.random() * chars.length));
+                if ((i + 1) % 4 === 0 && i < 15) key += "-";
+            }
+
+            const expiry = now + DURATION_MS;
+            localStorage.setItem("gooner_key_expiry", expiry);
+            localStorage.setItem("gooner_key_value", key);
+
+            showKeyUI(key, expiry);
+        }
+
+        function showKeyUI(key, expiry) {
+            document.getElementById("stepLink").classList.add("hidden");
+            document.getElementById("stepKey").classList.remove("hidden");
+            document.getElementById("keyDisplay").innerText = key;
+            startCountdown(expiry);
+        }
+
+        function startCountdown(expiryTime) {
+            const timerElement = document.getElementById("countdown");
+
+            const interval = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = expiryTime - now;
+
+                if (distance <= 0) {
+                    clearInterval(interval);
+                    // Quando scadono le 24 ore, pulisce tutto e richiede di rifare Linkvertise
+                    localStorage.removeItem("gooner_key_expiry");
+                    localStorage.removeItem("gooner_key_value");
+                    localStorage.removeItem("gooner_link_done");
+                    
+                    location.reload(); // Ricarica la pagina per bloccare tutto
+                    return;
+                }
+
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                timerElement.innerText = 
+                    String(hours).padStart(2, '0') + ":" + 
+                    String(minutes).padStart(2, '0') + ":" + 
+                    String(seconds).padStart(2, '0');
+            }, 1000);
+        }
+
+        function copyKey() {
+            const keyText = document.getElementById("keyDisplay").innerText;
+            navigator.clipboard.writeText(keyText).then(() => {
+                alert("Chiave copiata negli appunti!");
+            });
+        }
+
+        // Controllo automatico all'apertura o al ricaricamento del sito
+        window.onload = function() {
+            const expiry = localStorage.getItem("gooner_key_expiry");
+            const key = localStorage.getItem("gooner_key_value");
+            const linkDone = localStorage.getItem("gooner_link_done");
+            const now = new Date().getTime();
+
+            // Se la chiave delle 24 ore è ancora valida
+            if (expiry && key && now < parseInt(expiry)) {
+                showKeyUI(key, parseInt(expiry));
+            } 
+            // Se l'utente aveva già fatto il linkvertise ma non ha generato la chiave
+            else if (linkDone === "true") {
+                document.getElementById("btnGenerate").removeAttribute("disabled");
+                document.getElementById("statusBadge").className = "status-badge badge-unlocked";
+                document.getElementById("statusBadge").innerText = "🔓 Link Completato!";
+            }
+        };
+    </script>
+</body>
+</html>
