@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gooner Hub - Key System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Gotham:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Gotham', sans-serif;
+        }
+        body {
+            background-color: #080808;
+            color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: #111111;
+            border: 1px solid #272727;
+            border-radius: 14px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            text-align: center;
+        }
+        h1 {
+            font-size: 22px;
+            margin-bottom: 8px;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+        p {
+            font-size: 13px;
+            color: #9b9b9b;
+            margin-bottom: 24px;
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: none;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 12px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary {
+            background-color: #f5f5f5;
+            color: #080808;
+        }
+        .btn-primary:hover {
+            background-color: #dcdcdc;
+        }
+        .btn-secondary {
+            background-color: #1b1b1b;
+            color: #f5f5f5;
+            border: 1px solid #414141;
+        }
+        .btn-secondary:hover {
+            background-color: #2a2a2a;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .timer-box {
+            background: #161616;
+            border: 1px solid #2a2a2a;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        .timer-box span {
+            font-size: 20px;
+            font-weight: bold;
+            color: #f5f5f5;
+        }
+        textarea {
+            width: 100%;
+            height: 160px;
+            background: #0d0d0d;
+            color: #00ff66;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 12px;
+            resize: none;
+            margin-bottom: 15px;
+        }
+        .status-badge {
+            display: inline-block.
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+        .badge-locked { background: rgba(255, 60, 60, 0.15); color: #ff5c5c; border: 1px solid rgba(255, 60, 60, 0.3); }
+        .badge-unlocked { background: rgba(60, 255, 120, 0.15); color: #3cff78; border: 1px solid rgba(60, 255, 120, 0.3); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- SEZIONE LOCKED / KEY SYSTEM -->
+        <div id="lockSection">
+            <h1>GOONER HUB</h1>
+            <p>Completa il passaggio per sbloccare l'accesso per 24 ore.</p>
+            
+            <div id="statusBadge" class="status-badge badge-locked">🔒 Accesso Bloccato</div>
+
+            <button class="btn btn-secondary" onclick="openLink()">1. Ottieni Chiave (Linkvertise)</button>
+            <button class="btn btn-primary" onclick="verifyKey()">2. Verifica & Sblocca</button>
+        </div>
+
+        <!-- SEZIONE UNLOCKED / SCRIPT CONTENT -->
+        <div id="contentSection" class="hidden">
+            <h1>GOONER HUB</h1>
+            <p>Accesso attivo. La tua chiave scadrà tra:</p>
+            
+            <div class="timer-box">
+                <span id="countdown">24:00:00</span>
+            </div>
+
+            <div class="status-badge badge-unlocked">✨ Sbloccato con Successo</div>
+
+            <textarea id="scriptBox" readonly>--[[
+GOONER HUB - Dark UI per Roblox (LocalScript / executor)
+- Funziona su mobile, PC e tablet (finestra adattiva)
+- Loader a schermo intero (anche sotto notch / barre di sistema)
+- Tazze di latte ridisegnate: niente piu' parti che spariscono
+- RightShift oppure il pulsante flottante = mostra / nascondi la UI
+]]
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+local lp = Players.LocalPlayer
+local HUB_NAME = "GoonerHub"
+local HUB_TITLE = "Gooner Hub"
+
+local BG      = Color3.fromRGB(8, 8, 8)
+local PANEL   = Color3.fromRGB(17, 17, 17)
+local ELEM    = Color3.fromRGB(27, 27, 27)
+local ELEM_H  = Color3.fromRGB(42, 42, 42)
+local STROKE  = Color3.fromRGB(65, 65, 65)
+local TEXT    = Color3.fromRGB(245, 245, 245)
+local DIM     = Color3.fromRGB(155, 155, 155)
+local ACCENT  = Color3.fromRGB(235, 235, 235)
+local ACCENT2 = Color3.fromRGB(165, 165, 165)
+local OFF     = Color3.fromRGB(55, 55, 55)
+local MILK    = Color3.fromRGB(250, 250, 250)
+local CUPBODY = Color3.fromRGB(22, 22, 22)
+local WHITE   = Color3.new(1, 1, 1)
+
+local function new(class, props)
+    local o = Instance.new(class)
+    local parent
+    for k, v in pairs(props or {}) do
+        if k == "Parent" then parent = v else o[k] = v end
+    end
+    if parent then o.Parent = parent end
+    return o
+end
+
+local function corner(o, r) return Instance.new("UICorner", {CornerRadius = UDim.new(0, r), Parent = o}) end
+local function stroke(o, c, t) return Instance.new("UIStroke", {Color = c, Thickness = t or 1, Parent = o}) end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = HUB_NAME
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.DisplayOrder = 999
+pcall(function() gui.ScreenInsets = Enum.ScreenInsets.None end)
+gui.Parent = game:GetService("CoreGui")
+
+print("GoonerHub Caricato con Successo!")</textarea>
+
+            <button class="btn btn-primary" onclick="copyScript()">Copia Script</button>
+        </div>
+    </div>
+
+    <script>
+        const LINKVERTISE_URL = "https://link-center.net/9444892/MakeMOMlrcPH";
+        const DURATION_MS = 24 * 60 * 60 * 1000; // 24 ore
+
+        function openLink() {
+            window.open(LINKVERTISE_URL, '_blank');
+        }
+
+        function verifyKey() {
+            // Imposta la scadenza a 24 ore da adesso
+            const expiryTime = new Date().getTime() + DURATION_MS;
+            localStorage.setItem("gooner_key_expiry", expiryTime);
+            checkStatus();
+        }
+
+        function checkStatus() {
+            const expiryTime = localStorage.getItem("gooner_key_expiry");
+            const now = new Date().getTime();
+
+            if (expiryTime && now < parseInt(expiryTime)) {
+                // Sbloccato
+                document.getElementById("lockSection").classList.add("hidden");
+                document.getElementById("contentSection").classList.remove("hidden");
+                startCountdown(parseInt(expiryTime));
+            } else {
+                // Bloccato / Scaduto
+                localStorage.removeItem("gooner_key_expiry");
+                document.getElementById("lockSection").classList.remove("hidden");
+                document.getElementById("contentSection").classList.add("hidden");
+            }
+        }
+
+        function startCountdown(expiryTime) {
+            const timerElement = document.getElementById("countdown");
+
+            const interval = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = expiryTime - now;
+
+                if (distance <= 0) {
+                    clearInterval(interval);
+                    localStorage.removeItem("gooner_key_expiry");
+                    checkStatus();
+                    return;
+                }
+
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                timerElement.innerText = 
+                    String(hours).padStart(2, '0') + ":" + 
+                    String(minutes).padStart(2, '0') + ":" + 
+                    String(seconds).padStart(2, '0');
+            }, 1000);
+        }
+
+        function copyScript() {
+            const scriptBox = document.getElementById("scriptBox");
+            scriptBox.select();
+            document.execCommand("copy");
+            alert("Script copiato negli appunti!");
+        }
+
+        // Controlla lo stato appena si carica la pagina
+        window.onload = checkStatus;
+    </script>
+</body>
+</html>
