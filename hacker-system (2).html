@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hacker System (alpha)</title>
+<style>
+:root{--bg:#000;--g:#00ff41;--gd:#00a82a;--panel:rgba(0,12,2,.82);--r:#ff3b3b}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--g);font-family:"Courier New",ui-monospace,monospace}
+#rain{position:fixed;inset:0;z-index:0;width:100%;height:100%}
+main{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:36px 16px 60px}
+h1{font-size:clamp(26px,6vw,44px);margin:0 0 4px;text-shadow:0 0 12px var(--g);letter-spacing:1px}
+h1 small{color:var(--gd);font-size:.45em;text-shadow:none}
+.sub{color:var(--gd);margin:0 0 24px}
+form{display:flex;gap:8px;margin-bottom:20px}
+input{flex:1;min-width:0;background:var(--panel);border:1px solid var(--g);color:var(--g);padding:12px;font:inherit;font-size:16px;outline:none}
+input:focus-visible,button:focus-visible{box-shadow:0 0 0 2px var(--g),0 0 14px var(--g)}
+button{background:var(--g);color:#000;border:0;padding:12px 18px;font:inherit;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.5}
+.box{background:var(--panel);border:1px solid var(--gd);padding:16px;margin-bottom:14px;backdrop-filter:blur(2px)}
+.box h2{margin:0 0 10px;font-size:15px;color:var(--g);border-bottom:1px dashed var(--gd);padding-bottom:6px}
+.head{display:flex;gap:16px;align-items:center}
+.head img{width:110px;height:110px;border:1px solid var(--g);background:#021}
+.row{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid rgba(0,255,65,.12);word-break:break-word}
+.row span:first-child{color:var(--gd)}
+.row span:last-child{text-align:right}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tags a,.tags span{border:1px solid var(--gd);padding:3px 8px;font-size:13px;color:var(--g);text-decoration:none}
+.err{color:var(--r);border-color:var(--r)}
+.muted{color:var(--gd)}
+.log::after{content:"_";animation:b 1s steps(1) infinite}
+@keyframes b{50%{opacity:0}}
+@media(max-width:480px){.head{flex-direction:column;align-items:flex-start}}
+@media(prefers-reduced-motion:reduce){.log::after{animation:none}}
+</style>
+</head>
+<body>
+<canvas id="rain" aria-hidden="true"></canvas>
+<main>
+<h1>Hacker System <small>(alpha)</small></h1>
+<p class="sub">Inserisci un username Roblox per vedere i dati pubblici dell’account.</p>
+<form id="f">
+<input id="u" placeholder="username Roblox" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Username Roblox" required>
+<button id="b">Cerca</button>
+</form>
+<div id="out"></div>
+</main>
+<script>
+// Sfondo: pioggia di 0 e 1
+const cv=document.getElementById('rain'),cx=cv.getContext('2d');
+let cols,drops;
+function size(){cv.width=innerWidth;cv.height=innerHeight;cols=Math.floor(cv.width/16);drops=Array.from({length:cols},()=>Math.random()*-50)}
+size();addEventListener('resize',size);
+const still=matchMedia('(prefers-reduced-motion:reduce)').matches;
+function draw(){
+ cx.fillStyle='rgba(0,0,0,.08)';cx.fillRect(0,0,cv.width,cv.height);
+ cx.fillStyle='#00ff41';cx.font='16px monospace';
+ for(let i=0;i<cols;i++){
+  cx.fillText(Math.random()<.5?'0':'1',i*16,drops[i]*16);
+  if(drops[i]*16>cv.height&&Math.random()>.975)drops[i]=0;
+  drops[i]++;
+ }
+}
+if(still){for(let i=0;i<60;i++)draw()}else setInterval(draw,50);
+
+// Dati: API pubbliche Roblox tramite proxy RoProxy (Roblox blocca le chiamate dirette dal browser)
+const P=s=>`https://${s}.roblox.com`;
+const via=[u=>u.replace('.roblox.com','.roproxy.com'),u=>'https://corsproxy.io/?url='+encodeURIComponent(u),u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u)];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const get=async u=>{let e;for(const v of via){try{const r=await fetch(v(u));if(r.ok)return await r.json();e=new Error(r.status)}catch(x){e=x}}throw e||new Error('net')};
+const safe=async(p,d)=>{try{return await p}catch(e){return d}};
+const row=(k,v)=>`<div class="row"><span>${k}</span><span>${v}</span></div>`;
+const fmt=d=>new Date(d).toLocaleString('it-IT',{dateStyle:'long',timeStyle:'short'});
+function age(d){
+ const a=new Date(d),n=new Date();let y=n.getFullYear()-a.getFullYear(),m=n.getMonth()-a.getMonth(),g=n.getDate()-a.getDate();
+ if(g<0){m--;g+=new Date(n.getFullYear(),n.getMonth(),0).getDate()}
+ if(m<0){y--;m+=12}
+ return `${y} anni, ${m} mesi, ${g} giorni`;
+}
+$('f').addEventListener('submit',async e=>{
+ e.preventDefault();
+ const name=$('u').value.trim(),out=$('out'),btn=$('b');
+ if(!name)return;
+ btn.disabled=true;
+ out.innerHTML='<div class="box log">Scansione in corso</div>';
+ try{
+  const s=await get(P('users')+'/v1/users/search?keyword='+encodeURIComponent(name)+'&limit=10');
+  const id=(s.data||[]).find(x=>x.name.toLowerCase()===name.toLowerCase())?.id;
+  if(!id){out.innerHTML='<div class="box err">Utente non trovato. Controlla di aver scritto bene lo username.</div>';return}
+  const [u,hist,fr,fo,fg,img,groups,badges,friends]=await Promise.all([
+   get(P('users')+'/v1/users/'+id),
+   safe(get(P('users')+`/v1/users/${id}/username-history?limit=100&sortOrder=Desc`),{data:[]}),
+   safe(get(P('friends')+`/v1/users/${id}/friends/count`),{}),
+   safe(get(P('friends')+`/v1/users/${id}/followers/count`),{}),
+   safe(get(P('friends')+`/v1/users/${id}/followings/count`),{}),
+   safe(get(P('thumbnails')+`/v1/users/avatar-headshot?userIds=${id}&size=150x150&format=Png`),{data:[]}),
+   safe(get(P('groups')+`/v2/users/${id}/groups/roles`),{data:[]}),
+   safe(get(P('badges')+`/v1/users/${id}/badges?limit=100&sortOrder=Desc`),{data:[]}),
+   safe(get(P('friends')+`/v1/users/${id}/friends`),{data:[]})
+  ]);
+  const pic=img.data?.[0]?.imageUrl||'';
+  const names=hist.data.map(x=>`<span>${esc(x.name)}</span>`).join('')||'<span class="muted">Nessun nome precedente</span>';
+  const gr=groups.data.map(x=>`<a href="https://www.roblox.com/groups/${x.group.id}" target="_blank" rel="noopener">${esc(x.group.name)} · ${esc(x.role.name)}</a>`).join('')||'<span class="muted">Nessun gruppo</span>';
+  const fl=friends.data.slice(0,40).map(x=>`<a href="https://www.roblox.com/users/${x.id}/profile" target="_blank" rel="noopener">${esc(x.displayName||x.name)}</a>`).join('')||'<span class="muted">Nessun amico visibile</span>';
+  const bd=badges.data.slice(0,30).map(x=>`<span>${esc(x.name)}</span>`).join('')||'<span class="muted">Nessun badge</span>';
+  out.innerHTML=`
+  <div class="box head">${pic?`<img src="${esc(pic)}" alt="Avatar di ${esc(u.name)}">`:''}
+   <div><h2 style="border:0;font-size:22px;margin:0">${esc(u.displayName)}</h2><div>@${esc(u.name)}</div>
+   <div class="${u.isBanned?'':'muted'}" style="${u.isBanned?'color:var(--r)':''}">${u.isBanned?'ACCOUNT BANNATO':'Account attivo'}</div></div></div>
+  <div class="box"><h2>Account</h2>
+   ${row('User ID',id)}${row('Username',esc(u.name))}${row('Nome visualizzato',esc(u.displayName))}
+   ${row('Creato il',fmt(u.created))}${row('Età account',age(u.created))}
+   ${row('Badge verificato',u.hasVerifiedBadge?'Sì':'No')}${row('Bannato',u.isBanned?'Sì':'No')}
+   ${row('Paese','non pubblico (Roblox non lo fornisce)')}
+   ${row('Profilo',`<a style="color:var(--g)" href="https://www.roblox.com/users/${id}/profile" target="_blank" rel="noopener">apri su Roblox</a>`)}</div>
+  <div class="box"><h2>Social</h2>${row('Amici',fr.count??'?')}${row('Follower',fo.count??'?')}${row('Following',fg.count??'?')}</div>
+  <div class="box"><h2>Descrizione</h2><div>${esc(u.description)||'<span class="muted">Nessuna descrizione</span>'}</div></div>
+  <div class="box"><h2>Nomi precedenti (${hist.data.length})</h2><div class="tags">${names}</div></div>
+  <div class="box"><h2>Gruppi (${groups.data.length})</h2><div class="tags">${gr}</div></div>
+  <div class="box"><h2>Badge recenti (${badges.data.length}${badges.nextPageCursor?'+':''})</h2><div class="tags">${bd}</div></div>
+  <div class="box"><h2>Amici (primi ${Math.min(40,friends.data.length)})</h2><div class="tags">${fl}</div></div>`;
+ }catch(err){
+  out.innerHTML='<div class="box err">Errore di rete o API non raggiungibile. Riprova tra qualche secondo.<br><span class="muted">Dettaglio: '+esc(err&&err.message)+' · origine: '+esc(location.protocol)+'</span></div>';
+ }finally{btn.disabled=false}
+});
+</script>
+</body>
+</html>
